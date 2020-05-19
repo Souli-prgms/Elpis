@@ -15,22 +15,26 @@ Renderer::Renderer()
 	m_scene->addShader(new Shader("../../res/shaders/PBR.shader"), "PBR");
 
 	// Textures
-	m_scene->addTexture(new Texture("../../res/materials/rusted_iron_2/basecolor.png"), "rusted_iron/basecolor");
-	m_scene->addTexture(new Texture("../../res/materials/rusted_iron_2/metallic.png"), "rusted_iron/metallic");
-	m_scene->addTexture(new Texture("../../res/materials/rusted_iron_2/roughness.png"), "rusted_iron/roughness");
+	m_scene->addTexture(new Texture("../../res/materials/tiles/basecolor.jpg"), "tiles/basecolor");
+	m_scene->addTexture(new Texture("../../res/materials/tiles/metallic.jpg"), "tiles/metallic");
+	m_scene->addTexture(new Texture("../../res/materials/tiles/roughness.jpg"), "tiles/roughness");
+	m_scene->addTexture(new Texture("../../res/materials/tiles/normal.jpg"), "tiles/normal");
 
 	m_scene->addTexture(new Texture("../../res/materials/gold/basecolor.png"), "gold/basecolor");
 	m_scene->addTexture(new Texture("../../res/materials/gold/metallic.png"), "gold/metallic");
 	m_scene->addTexture(new Texture("../../res/materials/gold/roughness.png"), "gold/roughness");
+	m_scene->addTexture(new Texture("../../res/materials/gold/normal.png"), "gold/normal");
 
 	// Texture Maps
-	std::map<std::string, std::string> rustedIron = { {"albedo_map", "rusted_iron/basecolor"},
-	{"metallic_map", "rusted_iron/metallic"}, 
-	{"roughness_map", "rusted_iron/roughness"}, 
+	std::map<std::string, std::string> tiles = { {"albedo_map", "tiles/basecolor"},
+		{"metallic_map", "tiles/metallic"}, 
+		{"roughness_map", "tiles/roughness"},
+		{"normal_map", "tiles/normal"}
 	};
 	std::map<std::string, std::string> gold = { {"albedo_map", "gold/basecolor"},
-	{"metallic_map", "gold/metallic"},
-	{"roughness_map", "gold/roughness"},
+		{"metallic_map", "gold/metallic"},
+		{"roughness_map", "gold/roughness"},
+		{"normal_map", "gold/normal"}
 	};
 	std::map<std::string, std::string> cubemapTextureMap = { {"equirectangular_map", "cubemap"}};
 
@@ -38,7 +42,7 @@ Renderer::Renderer()
 	Mesh* sphere = Mesh::createSphere(2, 64, 64);
 
 	// Entities
-	m_scene->addEntity(sphere, "sphere", "PBR", rustedIron, Eigen::Vector3f(0, 5, 0));
+	m_scene->addEntity(sphere, "sphere", "PBR", tiles, Eigen::Vector3f(0, 0, 0));
 }
 
 Renderer::~Renderer()
@@ -74,10 +78,19 @@ void Renderer::initWindow()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 void Renderer::run()
 {
+	/*
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui::StyleColorsDark();*/
+
 	m_scene->computeCubemap();
 	glViewport(0, 0, 1280, 720);
 	while (!glfwWindowShouldClose(m_window))
@@ -85,17 +98,23 @@ void Renderer::run()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderScene();
+		/*ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();*/
+
+		m_scene->render();
+
+		/*ImGui::Begin("Parameters");
+		ImGui::Button("Hello!");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
 
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
 	}
 	glfwMakeContextCurrent(m_window);
-}
-
-void Renderer::renderScene()
-{
-	m_scene->render();
 }
 
 void Renderer::charPressed(int key)

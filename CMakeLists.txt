@@ -6,6 +6,8 @@ project("Elpis")
 set(TARGET "Elpis")
 
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
+
 
 # Headers
 set(HEADERS
@@ -39,18 +41,29 @@ set(SOURCES
 	thirdparty/stb_image/stb_image.cpp
 )
 
+set(IMGUI_SOURCES 
+	 ${IMGUI_DIR}/examples/imgui_impl_glfw.cpp
+	 ${IMGUI_DIR}/examples/imgui_impl_opengl3.cpp 
+	 ${IMGUI_DIR}/imgui.cpp 
+	 ${IMGUI_DIR}/imgui_draw.cpp 
+	 ${IMGUI_DIR}/imgui_demo.cpp 
+	 ${IMGUI_DIR}/imgui_widgets.cpp
+)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/eigen3
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/include
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stb_image
+					${IMGUI_DIR}
+					${IMGUI_DIR}/examples
 )
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/Release/x64
 				 ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib-vc2017
 )
 
-add_executable(${TARGET} ${SOURCES} ${HEADERS})
+add_executable(${TARGET} ${SOURCES} ${HEADERS} ${IMGUI_SOURCES})
 
 target_link_libraries(${TARGET} glew32 glfw3 opengl32)
 

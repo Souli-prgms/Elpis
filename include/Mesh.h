@@ -12,6 +12,7 @@ class Mesh {
 public:
 	static Mesh* createMesh(const std::string& filepath);
 	static Mesh* createSphere(const float radius, const int nU, const int nV);
+	static Mesh* createQuad();
 
 	void display(Shader* shader);
 

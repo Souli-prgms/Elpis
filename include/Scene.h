@@ -39,5 +39,4 @@ private:
 	void passWorldMatrices(Shader* shader, const Eigen::Affine3f& transformation);
 	void passTextures(Shader* shader, const std::map<std::string, std::string>& textureMap);
 	void renderEntity(Entity* entity, Shader* shader, bool isPBR);
-	Eigen::Matrix3f computeNormalMatrix(const Eigen::Affine3f& transformation);
 };

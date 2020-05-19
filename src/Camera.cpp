@@ -110,11 +110,8 @@ bool Camera::isPerspective() const {
 
 
 Eigen::Matrix4f Camera::computeViewMatrix() const {
-	Eigen::Vector3f scnCamera = m_scnCenter;
-	if (isPerspective())
-		scnCamera += m_scnOrientation * Eigen::Vector3f::UnitZ() * m_scnDistance;
 	return Eigen::Affine3f(
-		m_scnOrientation.inverse() * Eigen::Translation3f(-scnCamera)).matrix();
+		m_scnOrientation.inverse() * Eigen::Translation3f(-getPosition())).matrix();
 }
 
 
@@ -295,6 +292,13 @@ Eigen::Vector3f Camera::computeTranslation(const Eigen::Vector2f& scrPos) const 
 	m << m_scnOrientation * Eigen::Vector3f::UnitX(),
 		m_scnOrientation * -Eigen::Vector3f::UnitY();
 	return m_scnCenterInit - m * normOffset * m_scnRadius;
+}
+
+Eigen::Vector3f Camera::getPosition() const {
+	Eigen::Vector3f scnCamera = m_scnCenter;
+	if (isPerspective())
+		scnCamera += m_scnOrientation * Eigen::Vector3f::UnitZ() * m_scnDistance;
+	return scnCamera;
 }
 
 Eigen::Matrix4f Camera::perspective(float fovy, float aspect, float zNear, float zFar)

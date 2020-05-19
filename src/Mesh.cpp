@@ -104,8 +104,21 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 		}
 	}
 
-	Mesh* mesh = new Mesh(vertices, faceIds);
-	return mesh;
+	Mesh* sphere = new Mesh(vertices, faceIds);
+	return sphere;
+}
+
+Mesh* Mesh::createQuad()
+{
+	Eigen::Vector3f n(0.0, 0.0, 1.0);
+	std::vector<Vertex> vertices = { Vertex(Eigen::Vector3f(-1.0f, 1.0f, 0.0f), n, Eigen::Vector2f(0.0f, 1.0f)),
+	Vertex(Eigen::Vector3f(-1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(0.0f, 0.0f)),
+	Vertex(Eigen::Vector3f(1.0f, 1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 1.0f)),
+	Vertex(Eigen::Vector3f(1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 0.0f)) };
+
+	std::vector<unsigned int> faceIds = {1, 0, 3, 1, 3, 2};
+	Mesh* quad = new Mesh(vertices, faceIds);
+	return quad;
 }
 
 void Mesh::init() {

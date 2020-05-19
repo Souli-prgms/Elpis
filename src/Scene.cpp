@@ -77,14 +77,21 @@ void Scene::passWorldMatrices(Shader* shader, const Eigen::Affine3f& transformat
 	shader->setMat4("projection_matrix", m_cam->computeProjectionMatrix());
 	shader->setMat4("view_matrix", m_cam->computeViewMatrix());
 	shader->setMat4("model_matrix", transformation.matrix());
-	shader->setMat3("normal_matrix", computeNormalMatrix(transformation));
+	shader->setVec3("camera_position", m_cam->getPosition());
 }
 
 void Scene::passTextures(Shader* shader, const std::map<std::string, std::string>& textureMap)
 {
 	glActiveTexture(GL_TEXTURE0);
+	shader->setInt("irradiance_map", 0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getIrradianceMap());
-	int index = 1;
+	glActiveTexture(GL_TEXTURE1);
+	shader->setInt("prefilter_map", 1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getPreFilterMap());
+	glActiveTexture(GL_TEXTURE2);
+	shader->setInt("brdf_map", 2);
+	glBindTexture(GL_TEXTURE_2D, m_cubemap->getBRDFTexture());
+	int index = 3;
 	for (auto const& x : textureMap)
 	{
 		shader->setInt(x.first.c_str(), index);
@@ -106,11 +113,6 @@ void Scene::renderEntity(Entity* entity, Shader* shader, bool isPBR)
 
 	entity->display(shader);
 	shader->unbind();
-}
-
-Eigen::Matrix3f Scene::computeNormalMatrix(const Eigen::Affine3f& transformation) {
-	Eigen::Matrix3f N = (m_cam->computeViewMatrix().matrix() * transformation.matrix()).topLeftCorner<3, 3>();
-	return (N.inverse()).transpose();
 }
 
 void Scene::computeCubemap()

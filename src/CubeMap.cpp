@@ -13,14 +13,19 @@ Eigen::Matrix4f captureViews[] =
 
 CubeMap::CubeMap()
 {
-	m_texture = new Texture("../../res/cubemaps/MonValley_DirtRoad/MonValley_G_DirtRoad_3k.hdr");
+	m_texture = new Texture("../../res/cubemaps/Chelsea_Stairs/Chelsea_Stairs_3k.hdr");
 	m_cubemapShader = new Shader("../../res/shaders/Cubemap.shader");
 	m_backgroundShader = new Shader("../../res/shaders/Background.shader");
 	m_irradianceShader = new Shader("../../res/shaders/Irradiance.shader");
+	m_preFilterShader = new Shader("../../res/shaders/PreFilter.shader");
+	m_brdfShader = new Shader("../../res/shaders/BRDF.shader");
 	m_cube = Mesh::createMesh("../../res/models/cube.obj");
+	m_quad = Mesh::createQuad();
 
 	load();
 	computeIrradianceMap();
+	computepreFilteredMap();
+	computeBRDF();
 }
 
 CubeMap::~CubeMap()
@@ -120,17 +125,18 @@ void CubeMap::computeIrradianceMap()
 
 		m_cube->display(m_irradianceShader);
 	}
+	m_irradianceShader->unbind();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void CubeMap::computepreFilteredMap()
 {
-	/*
+	int size = 128;
 	glGenTextures(1, &m_preFilterMap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_preFilterMap);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -140,46 +146,46 @@ void CubeMap::computepreFilteredMap()
 
 	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-	prefilterShader.use();
-	prefilterShader.setInt("environmentMap", 0);
-	prefilterShader.setMat4("projection", captureProjection);
+	m_preFilterShader->bind();
+	m_preFilterShader->setInt("environment_map", 0);
+	m_preFilterShader->setMat4("projection_matrix", captureProjection);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
 	unsigned int maxMipLevels = 5;
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
 		// reisze framebuffer according to mip-level size.
-		unsigned int mipWidth = 128 * std::pow(0.5, mip);
-		unsigned int mipHeight = 128 * std::pow(0.5, mip);
-		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+		unsigned int mipWidth = size * std::pow(0.5, mip);
+		unsigned int mipHeight = size * std::pow(0.5, mip);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_captureRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);
 
 		float roughness = (float)mip / (float)(maxMipLevels - 1);
-		prefilterShader.setFloat("roughness", roughness);
+		m_preFilterShader->setFloat("roughness", roughness);
 		for (unsigned int i = 0; i < 6; ++i)
 		{
-			prefilterShader.setMat4("view", captureViews[i]);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
+			m_preFilterShader->setMat4("view_matrix", captureViews[i]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_preFilterMap, mip);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			renderCube();
+			m_cube->display(m_preFilterShader);
 		}
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+	m_preFilterShader->unbind();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void CubeMap::computeBRDF()
 {
-	/*
-	unsigned int brdfLUTTexture;
-	glGenTextures(1, &brdfLUTTexture);
+	int size = 512;
+	glGenTextures(1, &m_brdfTexture);
 
 	// pre-allocate enough memory for the LUT texture.
-	glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+	glBindTexture(GL_TEXTURE_2D, m_brdfTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, size, size, 0, GL_RG, GL_FLOAT, 0);
 	// be sure to set wrapping mode to GL_CLAMP_TO_EDGE
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -187,15 +193,16 @@ void CubeMap::computeBRDF()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size, size);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_brdfTexture, 0);
 
-	glViewport(0, 0, 512, 512);
-	brdfShader.use();
+	glViewport(0, 0, size, size);
+	m_brdfShader->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	renderQuad();
+	m_quad->display(m_brdfShader);
+	m_brdfShader->unbind();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

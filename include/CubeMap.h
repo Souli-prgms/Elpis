@@ -11,10 +11,14 @@ public:
 	~CubeMap();
 
 	void render(Camera* cam);
+	unsigned int getEnvironmentMap() const { return m_envCubemap; }
 	unsigned int getIrradianceMap() const { return m_irradianceMap; }
+	unsigned int getPreFilterMap() const { return m_preFilterMap; }
+	unsigned int getBRDFTexture() const { return m_brdfTexture; }
 
 private:
 	Mesh* m_cube;
+	Mesh* m_quad;
 	Texture* m_texture;
 	
 	Shader* m_cubemapShader;
