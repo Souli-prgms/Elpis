@@ -2,7 +2,7 @@
 
 ### PBR 3D Rendering Engine
 
-![alt text](res/Elpis_Capture.png "Elpis Screenshot")
+![Screenshot](res/Elpis_Capture.png?raw=true "Elpis Screenshot")
 
 ### TO DO:  
 - ImGui Docking 
