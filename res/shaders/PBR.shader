@@ -54,7 +54,23 @@ uniform sampler2D albedo_map;
 uniform sampler2D metallic_map;
 uniform sampler2D roughness_map;
 uniform sampler2D normal_map;
-uniform float ao;
+uniform sampler2D ao_map;
+
+uniform int albedo_bool;
+uniform int metallic_bool;
+uniform int roughness_bool;
+uniform int normal_bool;
+uniform int ao_bool;
+
+uniform vec3 albedo_val;
+uniform float metallic_val;
+uniform float roughness_val;
+uniform float normal_val;
+uniform float ao_val;
+
+uniform float exposure;
+uniform float lod;
+uniform int max_mip_level;
 
 uniform int nb_lights;
 uniform samplerCube irradiance_map;
@@ -128,12 +144,13 @@ vec3 fresnel_schlick_roughness(float cosTheta, vec3 f0, float roughness)
 void main()
 {
 	vec3 v = normalize(camera_position - v_position);
-	vec3 n = normal_from_map();
+	vec3 n = bool(normal_bool) ? normal_from_map() : v_normal;
 	vec3 r = reflect(-v, n);
 
-	vec3 albedo = pow(texture(albedo_map, v_texcoord).rgb, vec3(2.2));
-	float metallic = texture(metallic_map, v_texcoord).r;
-	float roughness = texture(roughness_map, v_texcoord).r;
+	vec3 albedo = bool(albedo_bool) ? pow(texture(albedo_map, v_texcoord).rgb, vec3(2.2)) : albedo_val;
+	float metallic = bool(metallic_bool) ? texture(metallic_map, v_texcoord).r : metallic_val;
+	float roughness = bool(roughness_bool) ? texture(roughness_map, v_texcoord).r : roughness_val;
+	float ao = bool(ao_bool) ? texture(ao_map, v_texcoord).r : ao_val;
 
 	vec3 f0 = vec3(0.04);
 	f0 = mix(f0, albedo, metallic);
@@ -171,8 +188,7 @@ void main()
 
 	vec3 diffuse = texture(irradiance_map, n).rgb * albedo;
 
-	const float MAX_REFLECTION_LOD = 4.0;
-	vec3 prefiltered_color = textureLod(prefilter_map, r, roughness * MAX_REFLECTION_LOD).rgb;
+	vec3 prefiltered_color = textureLod(prefilter_map, r, roughness * lod * float(max_mip_level)).rgb * exposure;
 	vec2 brdf = texture(brdf_map, vec2(max(dot(n, v), 0.0), roughness)).rg;
 	vec3 specular = prefiltered_color * (f * brdf.x + brdf.y);
 

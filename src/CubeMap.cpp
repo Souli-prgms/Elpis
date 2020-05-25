@@ -11,9 +11,9 @@ Eigen::Matrix4f captureViews[] =
    Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f,  0.0f, -1.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f))
 };
 
-CubeMap::CubeMap()
+CubeMap::CubeMap(): m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 {
-	m_texture = new Texture("../../res/cubemaps/Chelsea_Stairs/Chelsea_Stairs_3k.hdr");
+	m_texture = new Texture("../../res/cubemaps/birchwood_4k.hdr");
 	m_cubemapShader = new Shader("../../res/shaders/Cubemap.shader");
 	m_backgroundShader = new Shader("../../res/shaders/Background.shader");
 	m_irradianceShader = new Shader("../../res/shaders/Irradiance.shader");
@@ -39,6 +39,12 @@ void CubeMap::render(Camera* cam)
 	m_backgroundShader->setMat4("projection_matrix", cam->computeProjectionMatrix());
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
+	m_backgroundShader->setInt("environment_map", 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_preFilterMap);
+	m_backgroundShader->setInt("prefilter_map", 1);
+	m_backgroundShader->setFloat("exposure", m_exposure);
+	m_backgroundShader->setFloat("lod", m_lod);
 	m_cube->display(m_backgroundShader);
 	m_backgroundShader->unbind();
 }
@@ -131,7 +137,7 @@ void CubeMap::computeIrradianceMap()
 
 void CubeMap::computepreFilteredMap()
 {
-	int size = 128;
+	int size = 1024;
 	glGenTextures(1, &m_preFilterMap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_preFilterMap);
 	for (unsigned int i = 0; i < 6; ++i)
@@ -153,17 +159,16 @@ void CubeMap::computepreFilteredMap()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
-	unsigned int maxMipLevels = 5;
-	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+
+	for (unsigned int mip = 0; mip < m_maxMipLevel; ++mip)
 	{
-		// reisze framebuffer according to mip-level size.
 		unsigned int mipWidth = size * std::pow(0.5, mip);
 		unsigned int mipHeight = size * std::pow(0.5, mip);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_captureRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);
 
-		float roughness = (float)mip / (float)(maxMipLevels - 1);
+		float roughness = (float)mip / (float)(m_maxMipLevel - 1);
 		m_preFilterShader->setFloat("roughness", roughness);
 		for (unsigned int i = 0; i < 6; ++i)
 		{

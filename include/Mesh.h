@@ -15,28 +15,20 @@ public:
 	static Mesh* createQuad();
 
 	void display(Shader* shader);
+	Eigen::AlignedBox3f boundingBox() const { return m_bbox; }
 
 private:
-	struct Vertex
-	{
-		Vertex() {}
-		Vertex(const Eigen::Vector3f& pos, const Eigen::Vector3f& n, const Eigen::Vector2f& tex) : m_position(pos), m_normal(n), m_texcoord(tex)
-		{}
-
-		Eigen::Vector3f m_position;
-		Eigen::Vector3f m_normal;
-		Eigen::Vector2f m_texcoord;
-	};
-
 	std::vector<Vertex> m_vertices;
 	std::vector<unsigned int> m_faceIds;
+
+	Eigen::AlignedBox3f m_bbox;
 
 	GLuint m_vao;
 	GLuint m_vbo[2];
 
 	bool m_ready;
 
-	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds);
+	Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Eigen::AlignedBox3f& bbox);
 	~Mesh();
 	void init();
 };

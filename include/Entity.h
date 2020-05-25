@@ -17,6 +17,7 @@ public:
 	void rotate(float angle, const Eigen::Vector3f& axis);
 	void scale(float sx, float sy, float sz);
 	std::string getName() const { return m_name; }
+	void setMesh(Mesh* mesh) { m_mesh = mesh; }
 
 private:
 	std::string m_name;

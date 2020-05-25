@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds): m_ready(false), m_vertices(vertices), m_faceIds(faceIds)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Eigen::AlignedBox3f& bbox): m_ready(false), m_vertices(vertices), m_faceIds(faceIds), m_bbox(bbox)
 {
 }
 
@@ -11,61 +11,11 @@ Mesh::~Mesh()
 
 Mesh* Mesh::createMesh(const std::string& filepath)
 {
-	std::vector<Eigen::Vector3f> positionsTmp, normalsTmp;
-	std::vector<Eigen::Vector2f> texcoordsTmp;
-	std::vector<Eigen::Vector3i> faceIds, normalIds, texIds;
-
-	MeshLoader::loadObj(filepath, positionsTmp, faceIds, normalsTmp, texcoordsTmp, normalIds, texIds);
-
-	if (normalIds.size() == 0) // vertex normals not available, compute them from the faces normal
-	{
-		// pass 1: set the normal to 0
-		normalsTmp.resize(positionsTmp.size(), Eigen::Vector3f(0.f, 0.f, 0.f));
-
-		// pass 2: compute face normals and accumulate
-		for (unsigned int i = 0; i < faceIds.size(); i++)
-		{
-			Eigen::Vector3f v0 = positionsTmp[(faceIds[i])[0]];
-			Eigen::Vector3f v1 = positionsTmp[(faceIds[i])[1]];
-			Eigen::Vector3f v2 = positionsTmp[(faceIds[i])[2]];
-
-			Eigen::Vector3f n = (v1 - v0).cross(v2 - v0);
-
-			normalsTmp[(faceIds[i])[0]] += n;
-			normalsTmp[(faceIds[i])[1]] += n;
-			normalsTmp[(faceIds[i])[2]] += n;
-		}
-
-		// pass 3: normalize
-		for (std::vector<Eigen::Vector3f>::iterator n_iter = normalsTmp.begin(); n_iter != normalsTmp.end(); ++n_iter)
-			(*n_iter).normalize();
-
-		normalIds = faceIds;
-	}
-
-	Eigen::Vector3f pos;
-	Eigen::Vector2f tex;
-	Eigen::Vector3f norm;
-	unsigned int size = faceIds.size();
-
-	std::vector<unsigned int> indices;
 	std::vector<Vertex> vertices;
-
-	for (unsigned int i = 0; i < size; i++) 
-	{
-		for (unsigned int j = 0; j < 3; j++) {
-			pos = positionsTmp[(faceIds[i])[j]];
-			if (i < texIds.size())
-				tex = texcoordsTmp[(texIds[i])[j]];
-			if (i < normalIds.size())
-				norm = normalsTmp[(normalIds[i])[j]];
-
-			vertices.push_back(Vertex(pos, norm, tex));
-			indices.push_back(3 * i + j);
-		}
-	}
-
-	Mesh* mesh = new Mesh(vertices, indices);
+	std::vector<unsigned int> indices;
+	Eigen::AlignedBox3f bbox;
+	MeshLoader::loadMesh(filepath, vertices, indices, bbox);
+	Mesh* mesh = new Mesh(vertices, indices, bbox);
 	return mesh;
 }
 
@@ -74,7 +24,7 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 	int nVertices = (nU + 1) * (nV + 1);
 	std::vector<Vertex> vertices(nVertices);
 	std::vector<unsigned int> faceIds;
-
+	Eigen::AlignedBox3f bbox;
 
 	for (int v = 0; v <= nV; v++)
 	{
@@ -89,6 +39,7 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 			normal.normalize();
 
 			Eigen::Vector3f pos = normal * radius;
+			bbox.extend(pos);
 
 			vertices[index] = Vertex(pos, normal, Eigen::Vector2f(v / float(nV), u / float(nU)));
 		}
@@ -104,7 +55,7 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 		}
 	}
 
-	Mesh* sphere = new Mesh(vertices, faceIds);
+	Mesh* sphere = new Mesh(vertices, faceIds, bbox);
 	return sphere;
 }
 
@@ -115,9 +66,10 @@ Mesh* Mesh::createQuad()
 	Vertex(Eigen::Vector3f(-1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(0.0f, 0.0f)),
 	Vertex(Eigen::Vector3f(1.0f, 1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 1.0f)),
 	Vertex(Eigen::Vector3f(1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 0.0f)) };
-
+	Eigen::AlignedBox3f bbox;
+	bbox.extend(Eigen::Vector3f(-1.0f, -1.0f, 0.0f)); bbox.extend(Eigen::Vector3f(1.0f, 1.0f, 0.0f));
 	std::vector<unsigned int> faceIds = {1, 0, 3, 1, 3, 2};
-	Mesh* quad = new Mesh(vertices, faceIds);
+	Mesh* quad = new Mesh(vertices, faceIds, bbox);
 	return quad;
 }
 

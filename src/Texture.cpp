@@ -2,12 +2,10 @@
 
 Texture::Texture(const std::string& filename)
 {
-	if (std::filesystem::path(filename).extension() == ".hdr") {
+	if (std::filesystem::path(filename).extension() == ".hdr")
 		loadHDR(filename);
-	}
-	else {
+	else
 		loadImage(filename);
-	}
 }
 
 void Texture::loadImage(const std::string& filename)
@@ -37,9 +35,7 @@ void Texture::loadImage(const std::string& filename)
 	}
 
 	else
-	{
 		std::cout << "Failed to load texture: " << filename << std::endl;
-	}
 
 	stbi_image_free(m_data);
 }
@@ -62,9 +58,7 @@ void Texture::loadHDR(const std::string& filename)
 	}
 
 	else
-	{
 		std::cout << "Failed to load HDR: " << filename << std::endl;
-	}
 
 	stbi_image_free(m_floatData);
 }

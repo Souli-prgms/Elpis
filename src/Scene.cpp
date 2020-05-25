@@ -14,22 +14,19 @@ void Scene::addShader(Shader* shader, const std::string& name)
 	m_shaders.insert(std::make_pair(name, shader));
 }
 
-void Scene::addEntity(Mesh* mesh, const std::string& name, const std::string& shaderName, const std::map<std::string, std::string>& textureMap, const const Eigen::Vector3f& pos)
+void Scene::addEntity(Mesh* mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Eigen::Vector3f& pos)
 {
 	Entity* entity = new Entity(mesh, name, pos);
+	m_bbox.extend(mesh->boundingBox());
+	updateCameraWithBbox();
 	m_entities.push_back(entity);
 	m_entity2Shader.insert(std::make_pair(name, shaderName));
-	m_entity2TextureMap.insert(std::make_pair(name, textureMap));
+	m_entity2Material.insert(std::make_pair(name, materialName));
 }
 
 void Scene::addLight(Light* light)
 {
 	m_lights.push_back(light);
-}
-
-void Scene::addTexture(Texture* texture, const std::string& name)
-{
-	m_textures.insert(std::make_pair(name, texture));
 }
 
 void Scene::render()
@@ -44,12 +41,17 @@ void Scene::render()
 void Scene::initCamera() 
 {
 	m_cam = new Camera;
-	m_cam->setSceneCenter(Eigen::Vector3f(0, 0, 0));
-	m_cam->setSceneRadius(3.0);
+	updateCameraWithBbox();
+	m_cam->setScreenViewport(Eigen::AlignedBox2f(Eigen::Vector2f(0.0, 0.0), Eigen::Vector2f(1280, 720)));
+}
+
+void Scene::updateCameraWithBbox()
+{
+	m_cam->setSceneCenter(m_bbox.center());
+	m_cam->setSceneRadius(m_bbox.sizes().maxCoeff());
 	m_cam->setSceneDistance(m_cam->sceneRadius() * 3.f);
 	m_cam->setMinNear(0.1f);
 	m_cam->setNearFarOffsets(-m_cam->sceneRadius() * 100.f, m_cam->sceneRadius() * 100.f);
-	m_cam->setScreenViewport(Eigen::AlignedBox2f(Eigen::Vector2f(0.0, 0.0), Eigen::Vector2f(1280, 720)));
 }
 
 void Scene::passLights(Shader* shader)
@@ -80,37 +82,94 @@ void Scene::passWorldMatrices(Shader* shader, const Eigen::Affine3f& transformat
 	shader->setVec3("camera_position", m_cam->getPosition());
 }
 
-void Scene::passTextures(Shader* shader, const std::map<std::string, std::string>& textureMap)
+void Scene::passTextures(Shader* shader, Material* material)
 {
 	glActiveTexture(GL_TEXTURE0);
 	shader->setInt("irradiance_map", 0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getIrradianceMap());
+	
 	glActiveTexture(GL_TEXTURE1);
 	shader->setInt("prefilter_map", 1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getPreFilterMap());
+	
 	glActiveTexture(GL_TEXTURE2);
 	shader->setInt("brdf_map", 2);
 	glBindTexture(GL_TEXTURE_2D, m_cubemap->getBRDFTexture());
+
 	int index = 3;
-	for (auto const& x : textureMap)
+	passPBRMaterial(material, shader, index);
+}
+
+void Scene::passPBRMaterial(Material* mat, Shader* shader, int& index)
+{
+	// ALBEDO
+	if (mat->useBasecolorMap)
 	{
-		shader->setInt(x.first.c_str(), index);
 		glActiveTexture(GL_TEXTURE0 + index);
-		glBindTexture(GL_TEXTURE_2D, m_textures[x.second]->getId());
+		shader->setInt("albedo_map", index);
+		glBindTexture(GL_TEXTURE_2D, mat->basecolorMap->getId());
 		index++;
 	}
+	else
+		shader->setVec3("albedo_val", mat->basecolor);
+	shader->setInt("albedo_bool", mat->useBasecolorMap);
+
+	// METALLIC
+	if (mat->useMetallicMap)
+	{
+		glActiveTexture(GL_TEXTURE0 + index);
+		shader->setInt("metallic_map", index);
+		glBindTexture(GL_TEXTURE_2D, mat->metallicMap->getId());
+		index++;
+	}
+	else
+		shader->setFloat("metallic_val", mat->metallic);
+	shader->setInt("metallic_bool", mat->useMetallicMap);
+
+	// ROUGHNESS
+	if (mat->useRoughnessMap)
+	{
+		glActiveTexture(GL_TEXTURE0 + index);
+		shader->setInt("roughness_map", index);
+		glBindTexture(GL_TEXTURE_2D, mat->roughnessMap->getId());
+		index++;
+	}
+	else
+		shader->setFloat("roughness_val", mat->roughness);
+	shader->setInt("roughness_bool", mat->useRoughnessMap);
+
+	// AO
+	if (mat->useAoMap)
+	{
+		glActiveTexture(GL_TEXTURE0 + index);
+		shader->setInt("ao_map", index);
+		glBindTexture(GL_TEXTURE_2D, mat->aoMap->getId());
+		index++;
+	}
+	else
+		shader->setFloat("ao_val", mat->ao);
+	shader->setInt("ao_bool", mat->useAoMap);
+
+	// NORMALS
+	if (mat->useNormalMap)
+	{
+		glActiveTexture(GL_TEXTURE0 + index);
+		shader->setInt("normal_map", index);
+		glBindTexture(GL_TEXTURE_2D, mat->normalMap->getId());
+		index++;
+	}
+	shader->setInt("normal_bool", mat->useNormalMap);
 }
 
 void Scene::renderEntity(Entity* entity, Shader* shader, bool isPBR)
 {
 	shader->bind();
 	passLights(shader);
+	shader->setFloat("exposure", m_cubemap->getExposure());
+	shader->setFloat("lod", m_cubemap->getLod());
+	shader->setInt("max_mip_level", m_cubemap->getMaxMipLevels());
 	passWorldMatrices(shader, entity->getTransformationMatrix());
-	passTextures(shader, m_entity2TextureMap[entity->getName()]);
-
-	if (isPBR)
-		shader->setFloat("ao", 1.0);
-
+	passTextures(shader, MaterialManager::getInstance()->getMaterial(m_entity2Material[entity->getName()]));
 	entity->display(shader);
 	shader->unbind();
 }

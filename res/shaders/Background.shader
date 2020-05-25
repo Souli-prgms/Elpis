@@ -20,6 +20,10 @@ void main()
 #version 330 core
 
 uniform samplerCube environment_map;
+uniform samplerCube prefilter_map;
+
+uniform float exposure;
+uniform float lod;
 
 in vec3 v_position;
 
@@ -27,7 +31,8 @@ out vec4 out_color;
 
 void main()
 {
-	vec3 env_color = texture(environment_map, v_position).rgb;
+	vec3 env_color = lod > 0.0 ? textureLod(prefilter_map, v_position, lod).rgb : texture(environment_map, v_position).rgb;
+	env_color *= exposure;
 	env_color = env_color / (env_color + vec3(1.0));
 	env_color = pow(env_color, vec3(1.0 / 2.2));
 	out_color = vec4(env_color, 1.0);

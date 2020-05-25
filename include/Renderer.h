@@ -4,6 +4,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <windows.h>
+#include <shobjidl.h> 
 
 #include "Scene.h"
 
@@ -25,10 +27,14 @@ public:
 private:
 	void initWindow();
 	void setCallbacks();
+	std::string fileDialog();
 
 	GLFWwindow* m_window;
 	Scene* m_scene;
 
 	int m_button = -1;
 	Eigen::Vector2f m_lastMousePos;
+
+	int m_width;
+	int m_height;
 };

@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-Renderer::Renderer()
+Renderer::Renderer(): m_width(1280), m_height(720)
 {
 	initWindow();
 	m_scene = new Scene();
@@ -14,35 +14,17 @@ Renderer::Renderer()
 	// Shaders
 	m_scene->addShader(new Shader("../../res/shaders/PBR.shader"), "PBR");
 
-	// Textures
-	m_scene->addTexture(new Texture("../../res/materials/tiles/basecolor.jpg"), "tiles/basecolor");
-	m_scene->addTexture(new Texture("../../res/materials/tiles/metallic.jpg"), "tiles/metallic");
-	m_scene->addTexture(new Texture("../../res/materials/tiles/roughness.jpg"), "tiles/roughness");
-	m_scene->addTexture(new Texture("../../res/materials/tiles/normal.jpg"), "tiles/normal");
-
-	m_scene->addTexture(new Texture("../../res/materials/gold/basecolor.png"), "gold/basecolor");
-	m_scene->addTexture(new Texture("../../res/materials/gold/metallic.png"), "gold/metallic");
-	m_scene->addTexture(new Texture("../../res/materials/gold/roughness.png"), "gold/roughness");
-	m_scene->addTexture(new Texture("../../res/materials/gold/normal.png"), "gold/normal");
-
-	// Texture Maps
-	std::map<std::string, std::string> tiles = { {"albedo_map", "tiles/basecolor"},
-		{"metallic_map", "tiles/metallic"}, 
-		{"roughness_map", "tiles/roughness"},
-		{"normal_map", "tiles/normal"}
-	};
-	std::map<std::string, std::string> gold = { {"albedo_map", "gold/basecolor"},
-		{"metallic_map", "gold/metallic"},
-		{"roughness_map", "gold/roughness"},
-		{"normal_map", "gold/normal"}
-	};
-	std::map<std::string, std::string> cubemapTextureMap = { {"equirectangular_map", "cubemap"}};
+	// Materials
+	std::string textureName = "basic";
+	MaterialManager* matManager = MaterialManager::getInstance();
+	matManager->addMaterial(textureName);
 
 	// Meshes
-	Mesh* sphere = Mesh::createSphere(2, 64, 64);
+	Mesh* mesh = Mesh::createMesh("../../res/models/Cerberus_LP.FBX");
 
 	// Entities
-	m_scene->addEntity(sphere, "sphere", "PBR", tiles, Eigen::Vector3f(0, 0, 0));
+	m_scene->addEntity(mesh, "mesh", "PBR", textureName, Eigen::Vector3f(0, 0, 0));
+	m_scene->getEntity(0)->rotate(-M_PI_2, Eigen::Vector3f(1, 0, 0));
 }
 
 Renderer::~Renderer()
@@ -58,7 +40,7 @@ void Renderer::initWindow()
 	}
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	m_window = glfwCreateWindow(1280, 720, "Elpis", NULL, NULL);
+	m_window = glfwCreateWindow(m_width, m_height, "Elpis", NULL, NULL);
 
 	if (!m_window)
 	{
@@ -83,33 +65,129 @@ void Renderer::initWindow()
 
 void Renderer::run()
 {
-	/*
+	Material* mat = MaterialManager::getInstance()->getMaterial("basic");
+
+	bool* p_open = new bool(true);
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(m_width, m_height);
+	io.Fonts->AddFontFromFileTTF("../../res/fonts/Arial.ttf", 18.0f);
+	ImGui::StyleColorsDark();
+
 	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-	ImGui::StyleColorsDark();*/
+	ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	p_open = NULL;
 
 	m_scene->computeCubemap();
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, m_width, m_height);
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();*/
+		ImGui::NewFrame();
 
 		m_scene->render();
 
-		/*ImGui::Begin("Parameters");
-		ImGui::Button("Hello!");
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImVec2(350, m_height));
+		ImGui::Begin("Parameters", p_open, window_flags);
+
+		{
+			ImGui::BeginChild("Model", ImVec2(0, 520), true, ImGuiWindowFlags_None);
+			static int e = 1;
+			ImGui::RadioButton("Sphere", &e, 0); ImGui::SameLine(); ImGui::RadioButton("Model", &e, 1);
+			if (ImGui::CollapsingHeader("Mesh"))
+			{
+				if (ImGui::Button("..."))
+				{
+					std::string filepath = fileDialog();
+					Mesh* newMesh = Mesh::createMesh(filepath);
+					m_scene->getEntity(0)->setMesh(newMesh);
+				}
+			}
+			if (ImGui::CollapsingHeader("Albedo"))
+			{
+				unsigned int id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
+				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
+					std::string filepath = fileDialog();
+					mat->basecolorMap = new Texture(filepath);
+				}
+				ImGui::SameLine(); 
+				ImGui::Checkbox("Use", &(mat->useBasecolorMap));
+				ImGui::ColorEdit3("Color", mat->basecolor.data());
+			}
+			if (ImGui::CollapsingHeader("Normals"))
+			{
+				unsigned int id = mat->normalMap ? mat->normalMap->getId() : 0;
+				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
+					std::string filepath = fileDialog();
+					mat->normalMap = new Texture(filepath);
+				}
+				ImGui::SameLine(); 
+				ImGui::Checkbox("Use ", &(mat->useNormalMap));
+			}
+			if (ImGui::CollapsingHeader("Metalness"))
+			{
+				unsigned int id = mat->metallicMap ? mat->metallicMap->getId() : 0;
+				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
+					std::string filepath = fileDialog();
+					mat->metallicMap = new Texture(filepath);
+				}
+				ImGui::SameLine(); 
+				ImGui::Checkbox("Use  ", &(mat->useMetallicMap)); 
+				ImGui::SliderFloat("Metallic", &(mat->metallic), 0.0, 1.0);
+			}
+			if (ImGui::CollapsingHeader("Roughness"))
+			{
+				unsigned int id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
+				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
+					std::string filepath = fileDialog();
+					mat->roughnessMap = new Texture(filepath);
+				}
+				ImGui::SameLine(); 
+				ImGui::Checkbox("Use   ", &(mat->useRoughnessMap)); 
+				ImGui::SliderFloat("Roughness", &(mat->roughness), 0.0, 1.0);
+			}
+			if (ImGui::CollapsingHeader("Ao"))
+			{
+				unsigned int id = mat->aoMap ? mat->aoMap->getId() : 0;
+				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
+					std::string filepath = fileDialog();
+					mat->aoMap = new Texture(filepath);
+				}
+				ImGui::SameLine(); 
+				ImGui::Checkbox("Use    ", &(mat->useAoMap)); 
+				ImGui::SliderFloat("Ao", &(mat->ao), 0.0, 1.0);
+			}
+			ImGui::EndChild();
+		}
+
+		{
+			ImGui::BeginChild("Environment", ImVec2(0, 150), true, ImGuiWindowFlags_None);
+			ImGui::Button("Load environment map");
+			ImGui::SliderFloat("Skybox LOD", &(m_scene->getCubemap()->getLod()), 0.0f, float(m_scene->getCubemap()->getMaxMipLevels() - 1));
+			ImGui::SliderFloat("Exposure", &(m_scene->getCubemap()->getExposure()), 0.0f, 3.0f);
+			ImGui::EndChild();
+		}
 		ImGui::End();
 
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());*/
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(m_window);
 		glfwPollEvents();
@@ -134,6 +212,8 @@ void Renderer::keyPressed(int key, int action, int mods)
 
 void Renderer::reshapeWindow(int width, int height) {
 	glViewport(0, 0, width, height);
+	m_width = width;
+	m_height = height;
 }
 
 void Renderer::mouseScrolled(double x, double y)
@@ -169,15 +249,18 @@ void Renderer::mousePressed(GLFWwindow* window, int button, int action)
 
 void Renderer::mouseMoved(double x, double y)
 {
-	if (m_button == GLFW_MOUSE_BUTTON_LEFT)
+	if (x > 350)
 	{
-		m_scene->getCamera()->dragRotate(Eigen::Vector2f(x, y));
+		if (m_button == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			m_scene->getCamera()->dragRotate(Eigen::Vector2f(x, y));
+		}
+		else if (m_button == GLFW_MOUSE_BUTTON_RIGHT)
+		{
+			m_scene->getCamera()->dragTranslate(Eigen::Vector2f(x, y));
+		}
+		m_lastMousePos = Eigen::Vector2f(x, y);
 	}
-	else if (m_button == GLFW_MOUSE_BUTTON_RIGHT)
-	{
-		m_scene->getCamera()->dragTranslate(Eigen::Vector2f(x, y));
-	}
-	m_lastMousePos = Eigen::Vector2f(x, y);
 }
 
 void Renderer::setCallbacks()
@@ -219,4 +302,43 @@ void Renderer::setCallbacks()
 		Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
 		viewer->reshapeWindow(width, height);
 	});
+}
+
+std::string Renderer::fileDialog()
+{
+	std::string filepath;
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
+		COINIT_DISABLE_OLE1DDE);
+	if (SUCCEEDED(hr))
+	{
+		IFileOpenDialog *pFileOpen;
+
+		// Create the FileOpenDialog object.
+		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+			IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+		if (SUCCEEDED(hr))
+		{
+			// Show the Open dialog box.
+			hr = pFileOpen->Show(NULL);
+
+			// Get the file name from the dialog box.
+			if (SUCCEEDED(hr))
+			{
+				IShellItem *pItem;
+				hr = pFileOpen->GetResult(&pItem);
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					std::wstring ws(pszFilePath);
+					filepath = std::string(ws.begin(), ws.end());
+					pItem->Release();
+				}
+			}
+			pFileOpen->Release();
+		}
+		CoUninitialize();
+	}
+	return filepath;
 }
