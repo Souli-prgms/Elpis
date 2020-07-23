@@ -11,9 +11,9 @@ Eigen::Matrix4f captureViews[] =
    Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f,  0.0f, -1.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f))
 };
 
-CubeMap::CubeMap(): m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
+CubeMap::CubeMap(const std::string& filepath): m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 {
-	m_texture = new Texture("../../res/cubemaps/birchwood_4k.hdr");
+	m_texture = new Texture(filepath);
 	m_cubemapShader = new Shader("../../res/shaders/Cubemap.shader");
 	m_backgroundShader = new Shader("../../res/shaders/Background.shader");
 	m_irradianceShader = new Shader("../../res/shaders/Irradiance.shader");
@@ -26,10 +26,16 @@ CubeMap::CubeMap(): m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 	computeIrradianceMap();
 	computepreFilteredMap();
 	computeBRDF();
+
+	delete m_texture;
 }
 
 CubeMap::~CubeMap()
 {
+	glDeleteTextures(1, &m_envCubemap);
+	glDeleteTextures(1, &m_irradianceMap);
+	glDeleteTextures(1, &m_preFilterMap);
+	glDeleteTextures(1, &m_brdfTexture);
 }
 
 void CubeMap::render(Camera* cam)

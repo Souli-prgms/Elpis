@@ -11,7 +11,7 @@ class Texture
 {
 public:
 	Texture(const std::string& filename);
-	~Texture() {}
+	~Texture();
 
 	unsigned int getId() { return m_id; }
 

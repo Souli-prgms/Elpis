@@ -17,7 +17,7 @@ public:
 	void addEntity(Mesh* mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Eigen::Vector3f& pos);
 	void addLight(Light* light);
 	
-	void computeCubemap();
+	void setCubemap(const std::string& filepath);
 	void render();
 
 	Camera* getCamera() const { return m_cam; }

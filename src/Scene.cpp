@@ -61,7 +61,8 @@ void Scene::passLights(Shader* shader)
 	{
 		Light* light = m_lights[i];
 
-		if (light->getType() == LightType::Point) {
+		if (light->getType() == LightType::Point)
+		{
 			Eigen::Vector3f pos = light->getPosition();
 			shader->setVec4(("point_lights[" + std::to_string(i) + "].position").c_str(), m_cam->computeViewMatrix() * Eigen::Vector4f(pos.x(), pos.y(), pos.z(), 1.0f));
 			shader->setVec3(("point_lights[" + std::to_string(i) + "].ambient").c_str(), light->getAmbient());
@@ -174,7 +175,7 @@ void Scene::renderEntity(Entity* entity, Shader* shader, bool isPBR)
 	shader->unbind();
 }
 
-void Scene::computeCubemap()
+void Scene::setCubemap(const std::string& filepath)
 {
-	m_cubemap = new CubeMap();
+	m_cubemap = new CubeMap(filepath);
 }

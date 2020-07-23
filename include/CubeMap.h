@@ -7,7 +7,7 @@
 class CubeMap
 {
 public:
-	CubeMap();
+	CubeMap(const std::string& filepath);
 	~CubeMap();
 
 	void render(Camera* cam);

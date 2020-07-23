@@ -26,6 +26,8 @@ public:
 
 private:
 	void initWindow();
+	ImGuiWindowFlags initInterface();
+	void setInterface(const ImGuiWindowFlags& windowFlags);
 	void setCallbacks();
 	std::string fileDialog();
 

@@ -13,14 +13,9 @@ public:
 	Light(LightType type, const Eigen::Vector3f& vector) : m_type(type), m_ambient(Eigen::Vector3f(1.0, 1.0, 1.0)), m_diffuse(Eigen::Vector3f(1.0, 1.0, 1.0)), m_specular(Eigen::Vector3f(1.0, 1.0, 1.0))
 	{
 		if (type == LightType::Directional)
-		{
 			m_direction = vector;
-		}
-
 		else if (type == LightType::Point)
-		{
 			m_position = vector;
-		}
 	}
 	~Light() {};
 

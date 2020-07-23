@@ -8,6 +8,11 @@ Texture::Texture(const std::string& filename)
 		loadImage(filename);
 }
 
+Texture::~Texture() 
+{
+	glDeleteTextures(1, &m_id);
+}
+
 void Texture::loadImage(const std::string& filename)
 {
 	m_data = stbi_load(filename.c_str(), &m_width, &m_height, &m_nbChannels, 0);
@@ -16,6 +21,7 @@ void Texture::loadImage(const std::string& filename)
 	{
 		glGenTextures(1, &m_id);
 		GLenum format;
+
 		if (m_nbChannels == 1)
 			format = GL_RED;
 		else if (m_nbChannels == 3)

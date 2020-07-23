@@ -4,8 +4,9 @@
 
 ![Screenshot](res/Elpis_Capture.PNG "Elpis Screenshot")
 
-### TO DO:  
-- ImGui Docking 
+### TO DO:
+- Rendering to frame buffer
+- ImGui Docking
+- FXAA 
 - Skinning  
-- Clean scene hierarchy 
-- Performance enhancement
+- Handle scripts
