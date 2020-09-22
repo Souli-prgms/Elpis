@@ -1,10 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <fstream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <Eigen/Eigen>
+
+#include "Core.h"
+
 
 class Shader
 {
@@ -19,10 +18,10 @@ public:
 
 	void setFloat(const char* name, float f) const;
 	void setInt(const char* name, unsigned int i) const;
-	void setVec3(const char* name, Eigen::Vector3f vector) const;
-	void setVec4(const char* name, Eigen::Vector4f vector) const;
-	void setMat3(const char* name, Eigen::Matrix3f mat) const;
-	void setMat4(const char* name, Eigen::Matrix4f mat) const;
+	void setVec3(const char* name, const Vec3& vector) const;
+	void setVec4(const char* name, const Vec4& vector) const;
+	void setMat3(const char* name, const Mat3& mat) const;
+	void setMat4(const char* name, const Mat4& mat) const;
 
 private:
 	void parseShader(const std::string& filepath);

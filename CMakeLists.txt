@@ -9,6 +9,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
 
 set(HEADERS
+    include/Core.h
 	include/Renderer.h
 	include/Mesh.h
 	include/Shader.h
@@ -70,6 +71,8 @@ target_link_libraries(${TARGET} glew32 glfw3 opengl32 assimp-vc141-mtd)
 set(COPY_DIRECTORY_IF_DIFFERENT ${CMAKE_CURRENT_SOURCE_DIR}/update_directory.cmake)
 
 set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $(OutDir))
+
+add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
 
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/bin/Release/x64/glew32.dll $(OutDir))
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/bin/assimp-vc141-mtd.dll $(OutDir))

@@ -35,7 +35,7 @@ private:
 	Scene* m_scene;
 
 	int m_button = -1;
-	Eigen::Vector2f m_lastMousePos;
+	Vec2 m_lastMousePos;
 
 	int m_width;
 	int m_height;

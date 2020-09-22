@@ -9,14 +9,14 @@ Scene::~Scene()
 {
 }
 
-void Scene::addShader(Shader* shader, const std::string& name)
+void Scene::addShader(const Ref<Shader>& shader, const std::string& name)
 {
 	m_shaders.insert(std::make_pair(name, shader));
 }
 
-void Scene::addEntity(Mesh* mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Eigen::Vector3f& pos)
+void Scene::addEntity(const Ref<Mesh>& mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Vec3& pos)
 {
-	Entity* entity = new Entity(mesh, name, pos);
+	Ref<Entity> entity = CreateRef<Entity>(mesh, name, pos);
 	m_bbox.extend(mesh->boundingBox());
 	updateCameraWithBbox();
 	m_entities.push_back(entity);
@@ -24,14 +24,14 @@ void Scene::addEntity(Mesh* mesh, const std::string& name, const std::string& sh
 	m_entity2Material.insert(std::make_pair(name, materialName));
 }
 
-void Scene::addLight(Light* light)
+void Scene::addLight(const Ref<Light>& light)
 {
 	m_lights.push_back(light);
 }
 
 void Scene::render()
 {
-	for (std::vector<Entity*>::iterator it = m_entities.begin(); it < m_entities.end(); it++)
+	for (std::vector<Ref<Entity>>::iterator it = m_entities.begin(); it < m_entities.end(); it++)
 	{
 		renderEntity((*it), m_shaders[m_entity2Shader[(*it)->getName()]], true);
 	}
@@ -40,9 +40,9 @@ void Scene::render()
 
 void Scene::initCamera() 
 {
-	m_cam = new Camera;
+	m_cam = CreateRef<Camera>();
 	updateCameraWithBbox();
-	m_cam->setScreenViewport(Eigen::AlignedBox2f(Eigen::Vector2f(0.0, 0.0), Eigen::Vector2f(1280, 720)));
+	m_cam->setScreenViewport(Eigen::AlignedBox2f(Vec2(0.0, 0.0), Vec2(1280, 720)));
 }
 
 void Scene::updateCameraWithBbox()
@@ -54,17 +54,17 @@ void Scene::updateCameraWithBbox()
 	m_cam->setNearFarOffsets(-m_cam->sceneRadius() * 100.f, m_cam->sceneRadius() * 100.f);
 }
 
-void Scene::passLights(Shader* shader)
+void Scene::passLights(const Ref<Shader>& shader)
 {
 	shader->setInt("nb_lights", m_lights.size());
 	for (int i = 0; i < m_lights.size(); i++)
 	{
-		Light* light = m_lights[i];
+		Ref<Light> light = m_lights[i];
 
 		if (light->getType() == LightType::Point)
 		{
-			Eigen::Vector3f pos = light->getPosition();
-			shader->setVec4(("point_lights[" + std::to_string(i) + "].position").c_str(), m_cam->computeViewMatrix() * Eigen::Vector4f(pos.x(), pos.y(), pos.z(), 1.0f));
+			Vec3 pos = light->getPosition();
+			shader->setVec4(("point_lights[" + std::to_string(i) + "].position").c_str(), m_cam->computeViewMatrix() * Vec4(pos.x(), pos.y(), pos.z(), 1.0f));
 			shader->setVec3(("point_lights[" + std::to_string(i) + "].ambient").c_str(), light->getAmbient());
 			shader->setVec3(("point_lights[" + std::to_string(i) + "].diffuse").c_str(), light->getDiffuse());
 			shader->setVec3(("point_lights[" + std::to_string(i) + "].specular").c_str(), light->getSpecular());
@@ -75,7 +75,7 @@ void Scene::passLights(Shader* shader)
 	}
 }
 
-void Scene::passWorldMatrices(Shader* shader, const Eigen::Affine3f& transformation)
+void Scene::passWorldMatrices(const Ref<Shader>& shader, const Eigen::Affine3f& transformation)
 {
 	shader->setMat4("projection_matrix", m_cam->computeProjectionMatrix());
 	shader->setMat4("view_matrix", m_cam->computeViewMatrix());
@@ -83,7 +83,7 @@ void Scene::passWorldMatrices(Shader* shader, const Eigen::Affine3f& transformat
 	shader->setVec3("camera_position", m_cam->getPosition());
 }
 
-void Scene::passTextures(Shader* shader, Material* material)
+void Scene::passTextures(const Ref<Shader>& shader, const Ref<Material>& material)
 {
 	glActiveTexture(GL_TEXTURE0);
 	shader->setInt("irradiance_map", 0);
@@ -101,7 +101,7 @@ void Scene::passTextures(Shader* shader, Material* material)
 	passPBRMaterial(material, shader, index);
 }
 
-void Scene::passPBRMaterial(Material* mat, Shader* shader, int& index)
+void Scene::passPBRMaterial(const Ref<Material>& mat, const Ref<Shader>& shader, int& index)
 {
 	// ALBEDO
 	if (mat->useBasecolorMap)
@@ -162,7 +162,7 @@ void Scene::passPBRMaterial(Material* mat, Shader* shader, int& index)
 	shader->setInt("normal_bool", mat->useNormalMap);
 }
 
-void Scene::renderEntity(Entity* entity, Shader* shader, bool isPBR)
+void Scene::renderEntity(const Ref<Entity>& entity, const Ref<Shader>& shader, bool isPBR)
 {
 	shader->bind();
 	passLights(shader);
@@ -177,5 +177,5 @@ void Scene::renderEntity(Entity* entity, Shader* shader, bool isPBR)
 
 void Scene::setCubemap(const std::string& filepath)
 {
-	m_cubemap = new CubeMap(filepath);
+	m_cubemap = CreateRef<CubeMap>(filepath);
 }

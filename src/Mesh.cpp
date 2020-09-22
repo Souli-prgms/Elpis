@@ -1,6 +1,6 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Eigen::AlignedBox3f& bbox): m_ready(false), m_vertices(vertices), m_faceIds(faceIds), m_bbox(bbox)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Box3& bbox): m_ready(false), m_vertices(vertices), m_faceIds(faceIds), m_bbox(bbox)
 {
 }
 
@@ -9,22 +9,21 @@ Mesh::~Mesh()
 
 }
 
-Mesh* Mesh::createMesh(const std::string& filepath)
+Ref<Mesh> Mesh::createMesh(const std::string& filepath)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	Eigen::AlignedBox3f bbox;
+	Box3 bbox;
 	MeshLoader::loadMesh(filepath, vertices, indices, bbox);
-	Mesh* mesh = new Mesh(vertices, indices, bbox);
-	return mesh;
+	return CreateRef<Mesh>(vertices, indices, bbox);
 }
 
-Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
+Ref<Mesh> Mesh::createSphere(const float radius, const int nU, const int nV)
 {
 	int nVertices = (nU + 1) * (nV + 1);
 	std::vector<Vertex> vertices(nVertices);
 	std::vector<unsigned int> faceIds;
-	Eigen::AlignedBox3f bbox;
+	Box3 bbox;
 
 	for (int v = 0; v <= nV; v++)
 	{
@@ -35,13 +34,13 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 
 			int index = u + (nU + 1) * v;
 
-			Eigen::Vector3f normal(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+			Vec3 normal(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 			normal.normalize();
 
-			Eigen::Vector3f pos = normal * radius;
+			Vec3 pos = normal * radius;
 			bbox.extend(pos);
 
-			vertices[index] = Vertex(pos, normal, Eigen::Vector2f(v / float(nV), u / float(nU)));
+			vertices[index] = Vertex(pos, normal, Vec2(v / float(nV), u / float(nU)));
 		}
 	}
 
@@ -54,23 +53,20 @@ Mesh* Mesh::createSphere(const float radius, const int nU, const int nV)
 			faceIds.push_back(vindex); faceIds.push_back(vindex + 1 + (nU + 1)); faceIds.push_back(vindex + (nU + 1));
 		}
 	}
-
-	Mesh* sphere = new Mesh(vertices, faceIds, bbox);
-	return sphere;
+	return CreateRef<Mesh>(vertices, faceIds, bbox);
 }
 
-Mesh* Mesh::createQuad()
+Ref<Mesh> Mesh::createQuad()
 {
-	Eigen::Vector3f n(0.0, 0.0, 1.0);
-	std::vector<Vertex> vertices = { Vertex(Eigen::Vector3f(-1.0f, 1.0f, 0.0f), n, Eigen::Vector2f(0.0f, 1.0f)),
-	Vertex(Eigen::Vector3f(-1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(0.0f, 0.0f)),
-	Vertex(Eigen::Vector3f(1.0f, 1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 1.0f)),
-	Vertex(Eigen::Vector3f(1.0f, -1.0f, 0.0f), n, Eigen::Vector2f(1.0f, 0.0f)) };
-	Eigen::AlignedBox3f bbox;
-	bbox.extend(Eigen::Vector3f(-1.0f, -1.0f, 0.0f)); bbox.extend(Eigen::Vector3f(1.0f, 1.0f, 0.0f));
+	Vec3 n(0.0, 0.0, 1.0);
+	std::vector<Vertex> vertices = { Vertex(Vec3(-1.0f, 1.0f, 0.0f), n, Vec2(0.0f, 1.0f)),
+	Vertex(Vec3(-1.0f, -1.0f, 0.0f), n, Vec2(0.0f, 0.0f)),
+	Vertex(Vec3(1.0f, 1.0f, 0.0f), n, Vec2(1.0f, 1.0f)),
+	Vertex(Vec3(1.0f, -1.0f, 0.0f), n, Vec2(1.0f, 0.0f)) };
+	Box3 bbox;
+	bbox.extend(Vec3(-1.0f, -1.0f, 0.0f)); bbox.extend(Vec3(1.0f, 1.0f, 0.0f));
 	std::vector<unsigned int> faceIds = {1, 0, 3, 1, 3, 2};
-	Mesh* quad = new Mesh(vertices, faceIds, bbox);
-	return quad;
+	return CreateRef<Mesh>(vertices, faceIds, bbox);
 }
 
 void Mesh::init() {
@@ -88,7 +84,7 @@ void Mesh::init() {
 	m_ready = true;
 }
 
-void Mesh::display(Shader* shader) {
+void Mesh::display(const Ref<Shader>& shader) {
 	if (!m_ready)
 		init();
 
@@ -105,7 +101,7 @@ void Mesh::display(Shader* shader) {
 		glEnableVertexAttribArray(vertexLoc);
 	}
 
-	index += sizeof(Eigen::Vector3f);
+	index += sizeof(Vec3);
 
 	// Normals
 	int normalLoc = shader->getAttribLocation("vtx_normal");
@@ -114,7 +110,7 @@ void Mesh::display(Shader* shader) {
 		glEnableVertexAttribArray(normalLoc);
 	}
 
-	index += sizeof(Eigen::Vector3f);
+	index += sizeof(Vec3);
 
 	// Texture coordinates
 	int texcoordLoc = shader->getAttribLocation("vtx_texcoord");

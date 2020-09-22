@@ -1,6 +1,6 @@
 #include "Entity.h"
 
-Entity::Entity(Mesh* mesh, const std::string& name, const Eigen::Vector3f& position): m_mesh(mesh), m_name(name), m_transformation(Eigen::Matrix4f::Identity())
+Entity::Entity(const Ref<Mesh>& mesh, const std::string& name, const Vec3& position): m_mesh(mesh), m_name(name), m_transformation(Mat4::Identity())
 {
 	translate(position.x(), position.y(), position.z());
 }
@@ -9,7 +9,7 @@ Entity::~Entity()
 {
 }
 
-void Entity::display(Shader* shader)
+void Entity::display(const Ref<Shader>& shader)
 {
 	m_mesh->display(shader);
 }
@@ -18,7 +18,7 @@ void Entity::translate(float dx, float dy, float dz)
 {
 	m_transformation *= Eigen::Translation3f(dx, dy, dz);
 }
-void Entity::rotate(float angle, const Eigen::Vector3f& axis)
+void Entity::rotate(float angle, const Vec3& axis)
 {
 	m_transformation *= Eigen::AngleAxis(angle, axis);
 }

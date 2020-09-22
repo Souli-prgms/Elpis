@@ -1,17 +1,17 @@
 #include "MaterialManager.h"
 
-MaterialManager* MaterialManager::s_instance = 0;
+Ref<MaterialManager> MaterialManager::s_instance = 0;
 
-MaterialManager* MaterialManager::getInstance()
+const Ref<MaterialManager>& MaterialManager::getInstance()
 {
 	if (!s_instance)
-		s_instance = new MaterialManager();
+		s_instance = CreateRef<MaterialManager>();
 	return s_instance;
 }
 
 
 void MaterialManager::addMaterial(const std::string& materialName)
 {
-	Material* newMat = new Material();
+	Ref<Material> newMat = CreateRef<Material>();
 	m_materials.insert(std::make_pair(materialName, newMat));
 }

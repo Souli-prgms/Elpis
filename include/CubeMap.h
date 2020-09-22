@@ -10,7 +10,7 @@ public:
 	CubeMap(const std::string& filepath);
 	~CubeMap();
 
-	void render(Camera* cam);
+	void render(const Ref<Camera>& cam);
 	unsigned int getEnvironmentMap() const { return m_envCubemap; }
 	unsigned int getIrradianceMap() const { return m_irradianceMap; }
 	unsigned int getPreFilterMap() const { return m_preFilterMap; }
@@ -24,15 +24,15 @@ public:
 	void setLod(const float lod) { m_exposure = lod; }
 
 private:
-	Mesh* m_cube;
-	Mesh* m_quad;
-	Texture* m_texture;
+	Ref<Mesh> m_cube;
+	Ref<Mesh> m_quad;
+	Scope<Texture> m_texture;
 	
-	Shader* m_cubemapShader;
-	Shader* m_backgroundShader;
-	Shader* m_irradianceShader;
-	Shader* m_preFilterShader;
-	Shader* m_brdfShader;
+	Ref<Shader> m_cubemapShader;
+	Ref<Shader> m_backgroundShader;
+	Ref<Shader> m_irradianceShader;
+	Ref<Shader> m_preFilterShader;
+	Ref<Shader> m_brdfShader;
 	
 	unsigned int m_envCubemap;
 	unsigned int m_irradianceMap;

@@ -1,24 +1,24 @@
 #include "CubeMap.h"
 
-Eigen::Matrix4f captureProjection = Camera::perspective(M_PI / 2, 1.0f, 0.1f, 10.0f);
-Eigen::Matrix4f captureViews[] =
+Mat4 captureProjection = Camera::perspective(M_PI / 2, 1.0f, 0.1f, 10.0f);
+Mat4 captureViews[] =
 {
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(1.0f,  0.0f,  0.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f)),
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(-1.0f,  0.0f,  0.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f)),
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f,  1.0f,  0.0f), Eigen::Vector3f(0.0f,  0.0f,  1.0f)),
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f), Eigen::Vector3f(0.0f,  0.0f, -1.0f)),
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f,  0.0f,  1.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f)),
-   Camera::lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f), Eigen::Vector3f(0.0f,  0.0f, -1.0f), Eigen::Vector3f(0.0f, -1.0f,  0.0f))
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f,  0.0f,  0.0f), Vec3(0.0f, -1.0f,  0.0f)),
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f,  0.0f,  0.0f), Vec3(0.0f, -1.0f,  0.0f)),
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f,  1.0f,  0.0f), Vec3(0.0f,  0.0f,  1.0f)),
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f,  0.0f), Vec3(0.0f,  0.0f, -1.0f)),
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f,  0.0f,  1.0f), Vec3(0.0f, -1.0f,  0.0f)),
+   Camera::lookAt(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f,  0.0f, -1.0f), Vec3(0.0f, -1.0f,  0.0f))
 };
 
 CubeMap::CubeMap(const std::string& filepath): m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 {
-	m_texture = new Texture(filepath);
-	m_cubemapShader = new Shader("../../res/shaders/Cubemap.shader");
-	m_backgroundShader = new Shader("../../res/shaders/Background.shader");
-	m_irradianceShader = new Shader("../../res/shaders/Irradiance.shader");
-	m_preFilterShader = new Shader("../../res/shaders/PreFilter.shader");
-	m_brdfShader = new Shader("../../res/shaders/BRDF.shader");
+	m_texture = CreateScope<Texture>(filepath);
+	m_cubemapShader = CreateRef<Shader>("../../res/shaders/Cubemap.shader");
+	m_backgroundShader = CreateRef<Shader>("../../res/shaders/Background.shader");
+	m_irradianceShader = CreateRef<Shader>("../../res/shaders/Irradiance.shader");
+	m_preFilterShader = CreateRef<Shader>("../../res/shaders/PreFilter.shader");
+	m_brdfShader = CreateRef<Shader>("../../res/shaders/BRDF.shader");
 	m_cube = Mesh::createMesh("../../res/models/cube.obj");
 	m_quad = Mesh::createQuad();
 
@@ -26,8 +26,6 @@ CubeMap::CubeMap(const std::string& filepath): m_exposure(1.0), m_lod(0.0), m_ma
 	computeIrradianceMap();
 	computepreFilteredMap();
 	computeBRDF();
-
-	delete m_texture;
 }
 
 CubeMap::~CubeMap()
@@ -38,7 +36,7 @@ CubeMap::~CubeMap()
 	glDeleteTextures(1, &m_brdfTexture);
 }
 
-void CubeMap::render(Camera* cam)
+void CubeMap::render(const Ref<Camera>& cam)
 {
 	m_backgroundShader->bind();
 	m_backgroundShader->setMat4("view_matrix", cam->computeViewMatrix());

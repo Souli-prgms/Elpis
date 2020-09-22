@@ -10,9 +10,9 @@ void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vert
 	bool hasUVs = mesh->mTextureCoords[0] ? true : false;
 	for (int v = 0; v < mesh->mNumVertices; v++)
 	{
-		Eigen::Vector3f position(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z);
-		Eigen::Vector2f texcoords = hasUVs ? Eigen::Vector2f(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y) : Eigen::Vector2f(0.0, 0.0);
-		Eigen::Vector3f normal(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
+		Vec3 position(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z);
+		Vec2 texcoords = hasUVs ? Vec2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y) : Vec2(0.0, 0.0);
+		Vec3 normal(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
 		
 		vertices.push_back(Vertex(position, normal, texcoords));
 		bbox.extend(position);

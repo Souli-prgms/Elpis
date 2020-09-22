@@ -2,7 +2,7 @@
 
 #define ORTHO_THRESOLD 1.e2f
 
-Eigen::Matrix4f orthographicProjection(
+Mat4 orthographicProjection(
 	float l, float r, float b, float t, float n, float f) {
 	float rpl = r + l;
 	float tpb = t + b;
@@ -12,7 +12,7 @@ Eigen::Matrix4f orthographicProjection(
 	float tmb = t - b;
 	float fmn = f - n;
 
-	Eigen::Matrix4f m;
+	Mat4 m;
 	m << 2.f / rml, 0.0f, 0.0f, -rpl / rml,
 		0.0f, 2.f / tmb, 0.0f, -tpb / tmb,
 		0.0f, 0.0f, -2.f / fmn, -fpn / fmn,
@@ -22,7 +22,7 @@ Eigen::Matrix4f orthographicProjection(
 
 
 
-Eigen::Matrix4f perspectiveProjection(
+Mat4 perspectiveProjection(
 	float l, float r, float b, float t, float n, float f) {
 	float rpl = r + l;
 	float tpb = t + b;
@@ -32,7 +32,7 @@ Eigen::Matrix4f perspectiveProjection(
 	float tmb = t - b;
 	float fmn = f - n;
 
-	Eigen::Matrix4f m;
+	Mat4 m;
 	m << 2 / rml, 0, rpl / rml, 0,
 		0, 2 / tmb, tpb / tmb, 0,
 		0, 0, -fpn / fmn, -2 * f*n / fmn,
@@ -42,7 +42,7 @@ Eigen::Matrix4f perspectiveProjection(
 
 
 Camera::Camera() :
-	m_scnCenter(Eigen::Vector3f::Zero()),
+	m_scnCenter(Vec3::Zero()),
 	m_scnDistance(3.),
 	m_scnRadius(1.),
 	m_scnOrientation(1., 0., 0., 0.),
@@ -54,7 +54,7 @@ Camera::Camera() :
 }
 
 
-const Eigen::Vector3f& Camera::sceneCenter() const {
+const Vec3& Camera::sceneCenter() const {
 	return m_scnCenter;
 }
 
@@ -69,12 +69,12 @@ float Camera::sceneRadius() const {
 }
 
 
-const Eigen::Quaternionf& Camera::sceneOrientation() const {
+const Quat& Camera::sceneOrientation() const {
 	return m_scnOrientation;
 }
 
 
-const Eigen::AlignedBox2f& Camera::screenViewport() const {
+const Box2& Camera::screenViewport() const {
 	return m_scrViewport;
 }
 
@@ -109,13 +109,12 @@ bool Camera::isPerspective() const {
 }
 
 
-Eigen::Matrix4f Camera::computeViewMatrix() const {
-	return Eigen::Affine3f(
-		m_scnOrientation.inverse() * Eigen::Translation3f(-getPosition())).matrix();
+Mat4 Camera::computeViewMatrix() const {
+	return Eigen::Affine3f(m_scnOrientation.inverse() * Eigen::Translation3f(-getPosition())).matrix();
 }
 
 
-Eigen::Matrix4f Camera::computeProjectionMatrix() const {
+Mat4 Camera::computeProjectionMatrix() const {
 	float scrMinSize = minScreenViewportSize();
 	float r = m_scnRadius * m_scrViewport.sizes().x() / (scrMinSize);
 	float t = m_scnRadius * m_scrViewport.sizes().y() / (scrMinSize);
@@ -134,7 +133,7 @@ Eigen::Matrix4f Camera::computeProjectionMatrix() const {
 }
 
 
-Eigen::Matrix4f Camera::computeOrthoType() const {
+Mat4 Camera::computeOrthoType() const {
 	float scrMinSize = minScreenViewportSize();
 	float r = m_scnRadius * m_scrViewport.sizes().x() / (scrMinSize);
 	float t = m_scnRadius * m_scrViewport.sizes().y() / (scrMinSize);
@@ -142,7 +141,7 @@ Eigen::Matrix4f Camera::computeOrthoType() const {
 	return orthographicProjection(-r, r, -t, t, m_nearOffset, m_farOffset);
 }
 
-void Camera::setSceneCenter(const Eigen::Vector3f& scnCenter) {
+void Camera::setSceneCenter(const Vec3& scnCenter) {
 	m_scnCenter = scnCenter;
 }
 
@@ -157,12 +156,12 @@ void Camera::setSceneRadius(float scnRadius) {
 }
 
 
-void Camera::setSceneOrientation(const Eigen::Quaternionf& scnOrientation) {
+void Camera::setSceneOrientation(const Quat& scnOrientation) {
 	m_scnOrientation = scnOrientation;
 }
 
 
-void Camera::setScreenViewport(const Eigen::AlignedBox2f& scrViewport) {
+void Camera::setScreenViewport(const Box2& scrViewport) {
 	m_scrViewport = scrViewport;
 }
 
@@ -183,7 +182,7 @@ bool Camera::isIdle() const {
 }
 
 
-void Camera::rotate(const Eigen::Quaternionf& rot) {
+void Camera::rotate(const Quat& rot) {
 	m_scnOrientation *= rot;
 }
 
@@ -193,7 +192,7 @@ bool Camera::isRotating() const {
 }
 
 
-void Camera::startRotation(const Eigen::Vector2f& scrPos) {
+void Camera::startRotation(const Vec2& scrPos) {
 	assert(m_state == Idle);
 	m_state = Rotating;
 	m_scrMouseInit = scrPos;
@@ -201,7 +200,7 @@ void Camera::startRotation(const Eigen::Vector2f& scrPos) {
 }
 
 
-void Camera::dragRotate(const Eigen::Vector2f& scrPos) {
+void Camera::dragRotate(const Vec2& scrPos) {
 	assert(m_state == Rotating);
 	m_scnOrientation = computeRotation(scrPos);
 }
@@ -225,7 +224,7 @@ bool Camera::isTranslating() const {
 }
 
 
-void Camera::startTranslation(const Eigen::Vector2f& scrPos) {
+void Camera::startTranslation(const Vec2& scrPos) {
 	assert(m_state == Idle);
 	m_state = Translating;
 	m_scrMouseInit = scrPos;
@@ -233,7 +232,7 @@ void Camera::startTranslation(const Eigen::Vector2f& scrPos) {
 }
 
 
-void Camera::dragTranslate(const Eigen::Vector2f& scrPos) {
+void Camera::dragTranslate(const Vec2& scrPos) {
 	assert(m_state == Translating);
 	m_scnCenter = computeTranslation(scrPos);
 }
@@ -271,41 +270,38 @@ void Camera::dollyZoom(float factor) {
 }
 
 
-Eigen::Vector2f Camera::normFromScr(const Eigen::Vector2f& scrPos) const {
+Vec2 Camera::normFromScr(const Vec2& scrPos) const {
 	return (scrPos - m_scrViewport.center()) / minScreenViewportSize();
 }
 
 
-Eigen::Quaternionf Camera::computeRotation(const Eigen::Vector2f& scrPos) const {
-	Eigen::Vector2f v = (m_scrMouseInit - scrPos)
-		* (float(2. * M_PI) / m_scrViewport.sizes().x());
-	Eigen::Vector3f x = Eigen::Vector3f::UnitX();
-	Eigen::Vector3f y = Eigen::Vector3f::UnitY();
-	return m_scnOrientInit * Eigen::Quaternionf(Eigen::AngleAxisf(v.x(), y))
-		* Eigen::Quaternionf(Eigen::AngleAxisf(v.y(), x));
+Quat Camera::computeRotation(const Vec2& scrPos) const {
+	Vec2 v = (m_scrMouseInit - scrPos) * (float(2. * M_PI) / m_scrViewport.sizes().x());
+	Vec3 x = Vec3::UnitX();
+	Vec3 y = Vec3::UnitY();
+	return m_scnOrientInit * Quat(Eigen::AngleAxisf(v.x(), y)) * Quat(Eigen::AngleAxisf(v.y(), x));
 }
 
 
-Eigen::Vector3f Camera::computeTranslation(const Eigen::Vector2f& scrPos) const {
+Vec3 Camera::computeTranslation(const Vec2& scrPos) const {
 	Eigen::Matrix<float, 3, 2> m;
-	Eigen::Vector2f normOffset = 2.f * (scrPos - m_scrMouseInit) / minScreenViewportSize();
-	m << m_scnOrientation * Eigen::Vector3f::UnitX(),
-		m_scnOrientation * -Eigen::Vector3f::UnitY();
+	Vec2 normOffset = 2.f * (scrPos - m_scrMouseInit) / minScreenViewportSize();
+	m << m_scnOrientation * Vec3::UnitX(), m_scnOrientation * -Vec3::UnitY();
 	return m_scnCenterInit - m * normOffset * m_scnRadius;
 }
 
-Eigen::Vector3f Camera::getPosition() const {
-	Eigen::Vector3f scnCamera = m_scnCenter;
+Vec3 Camera::getPosition() const {
+	Vec3 scnCamera = m_scnCenter;
 	if (isPerspective())
-		scnCamera += m_scnOrientation * Eigen::Vector3f::UnitZ() * m_scnDistance;
+		scnCamera += m_scnOrientation * Vec3::UnitZ() * m_scnDistance;
 	return scnCamera;
 }
 
-Eigen::Matrix4f Camera::perspective(float fovy, float aspect, float zNear, float zFar)
+Mat4 Camera::perspective(float fovy, float aspect, float zNear, float zFar)
 {
 	float tanHalfFovy = tan(fovy / 2.f);
 
-	Eigen::Matrix4f m;
+	Mat4 m;
 	m << 1.f / (aspect * tanHalfFovy), 0, 0, 0,
 		0, 1.f / (tanHalfFovy), 0, 0,
 		0, 0, -(zFar + zNear) / (zFar - zNear), -(2.f * zFar * zNear) / (zFar - zNear),
@@ -313,14 +309,14 @@ Eigen::Matrix4f Camera::perspective(float fovy, float aspect, float zNear, float
 	return m;
 }
 
-Eigen::Matrix4f Camera::lookAt(const Eigen::Vector3f& position, const Eigen::Vector3f& target, const Eigen::Vector3f& up)
+Mat4 Camera::lookAt(const Vec3& position, const Vec3& target, const Vec3& up)
 {
-	Eigen::Matrix3f R;
+	Mat3 R;
 	R.col(2) = (position - target).normalized();
 	R.col(0) = up.cross(R.col(2)).normalized();
 	R.col(1) = R.col(2).cross(R.col(0));
 
-	Eigen::Matrix4f m(Eigen::Matrix4f::Identity());
+	Mat4 m(Mat4::Identity());
 	m.topLeftCorner<3, 3>() = R.transpose();
 	m.topRightCorner<3, 1>() = -R.transpose() * position;
 

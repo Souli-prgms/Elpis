@@ -25,17 +25,12 @@ void Shader::parseShader(const std::string& filepath)
 
 	while (getline(stream, line)) {
 		if (line.find("#shader") != std::string::npos) {
-			if (line.find("vertex") != std::string::npos) {
+			if (line.find("vertex") != std::string::npos)
 				type = ShaderType::VERTEX;
-			}
-
-			else if (line.find("fragment") != std::string::npos) {
+			else if (line.find("fragment") != std::string::npos) 
 				type = ShaderType::FRAGMENT;
-			}
 		}
-		else {
-			ss[(int)type] << line << '\n';
-		}
+		else ss[(int)type] << line << '\n';
 	}
 
 	m_vertexSource = ss[0].str();
@@ -94,12 +89,12 @@ int Shader::getAttribLocation(const char* name) const
 	return glGetAttribLocation(m_id, name);
 }
 
-void Shader::setVec3(const char* name, Eigen::Vector3f vector) const
+void Shader::setVec3(const char* name, const Vec3& vector) const
 {
 	glUniform3f(glGetUniformLocation(m_id, name), vector(0), vector(1), vector(2));
 }
 
-void Shader::setVec4(const char* name, Eigen::Vector4f vector) const
+void Shader::setVec4(const char* name, const Vec4& vector) const
 {
 	glUniform4f(glGetUniformLocation(m_id, name), vector(0), vector(1), vector(2), vector(3));
 }
@@ -110,12 +105,12 @@ void Shader::setFloat(const char* name, float f) const
 	glUniform1f(glGetUniformLocation(m_id, name), f);
 }
 
-void Shader::setMat3(const char* name, Eigen::Matrix3f mat) const
+void Shader::setMat3(const char* name, const Mat3& mat) const
 {
 	glUniformMatrix3fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, mat.data());
 }
 
-void Shader::setMat4(const char* name, Eigen::Matrix4f mat) const
+void Shader::setMat4(const char* name, const Mat4& mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, mat.data());
 }

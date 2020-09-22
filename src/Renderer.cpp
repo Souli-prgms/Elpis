@@ -9,25 +9,25 @@ Renderer::Renderer(): m_width(1280), m_height(720)
 	m_scene->setCubemap("../../res/cubemaps/birchwood_4k.hdr");
 
 	// Lights
-	m_scene->addLight(new Light(LightType::Point, Eigen::Vector3f(-10.0, 10.0, 10.0)));
-	m_scene->addLight(new Light(LightType::Point, Eigen::Vector3f(10.0, 10.0, 10.0)));
-	m_scene->addLight(new Light(LightType::Point, Eigen::Vector3f(-10.0, -10.0, 10.0)));
-	m_scene->addLight(new Light(LightType::Point, Eigen::Vector3f(10.0, -10.0, 10.0)));
+	m_scene->addLight(CreateRef<Light>(LightType::Point, Vec3(-10.0, 10.0, 10.0)));
+	m_scene->addLight(CreateRef<Light>(LightType::Point, Vec3(10.0, 10.0, 10.0)));
+	m_scene->addLight(CreateRef<Light>(LightType::Point, Vec3(-10.0, -10.0, 10.0)));
+	m_scene->addLight(CreateRef<Light>(LightType::Point, Vec3(10.0, -10.0, 10.0)));
 
 	// Shaders
-	m_scene->addShader(new Shader("../../res/shaders/PBR.shader"), "PBR");
+	m_scene->addShader(CreateRef<Shader>("../../res/shaders/PBR.shader"), "PBR");
 
 	// Materials
 	std::string textureName = "basic";
-	MaterialManager* matManager = MaterialManager::getInstance();
+	Ref<MaterialManager> matManager = MaterialManager::getInstance();
 	matManager->addMaterial(textureName);
 
 	// Meshes
-	Mesh* mesh = Mesh::createMesh("../../res/models/Cerberus_LP.FBX");
+	Ref<Mesh> mesh = Mesh::createMesh("../../res/models/Cerberus_LP.FBX");
 
 	// Entities
-	m_scene->addEntity(mesh, "mesh", "PBR", textureName, Eigen::Vector3f(0, 0, 0));
-	m_scene->getEntity(0)->rotate(-M_PI_2, Eigen::Vector3f(1, 0, 0));
+	m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 0, 0));
+	m_scene->getEntity(0)->rotate(-M_PI_2, Vec3(1, 0, 0));
 }
 
 Renderer::~Renderer()
@@ -110,7 +110,7 @@ ImGuiWindowFlags Renderer::initInterface()
 
 void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 {
-	Material* mat = MaterialManager::getInstance()->getMaterial("basic");
+	Ref<Material> mat = MaterialManager::getInstance()->getMaterial("basic");
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -130,10 +130,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			{
 				std::string filepath = fileDialog();
 				if (!filepath.empty())
-				{
-					Mesh* newMesh = Mesh::createMesh(filepath);
-					m_scene->getEntity(0)->setMesh(newMesh);
-				}
+					m_scene->getEntity(0)->setMesh(Mesh::createMesh(filepath));
 			}
 		}
 		if (ImGui::CollapsingHeader("Albedo"))
@@ -141,7 +138,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			unsigned int id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
 			if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 				std::string filepath = fileDialog();
-				mat->basecolorMap = new Texture(filepath);
+				mat->basecolorMap = CreateRef<Texture>(filepath);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Use", &(mat->useBasecolorMap));
@@ -152,7 +149,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			unsigned int id = mat->normalMap ? mat->normalMap->getId() : 0;
 			if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 				std::string filepath = fileDialog();
-				mat->normalMap = new Texture(filepath);
+				mat->normalMap = CreateRef<Texture>(filepath);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Use ", &(mat->useNormalMap));
@@ -162,7 +159,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			unsigned int id = mat->metallicMap ? mat->metallicMap->getId() : 0;
 			if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 				std::string filepath = fileDialog();
-				mat->metallicMap = new Texture(filepath);
+				mat->metallicMap = CreateRef<Texture>(filepath);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Use  ", &(mat->useMetallicMap));
@@ -173,7 +170,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			unsigned int id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
 			if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 				std::string filepath = fileDialog();
-				mat->roughnessMap = new Texture(filepath);
+				mat->roughnessMap = CreateRef<Texture>(filepath);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Use   ", &(mat->useRoughnessMap));
@@ -184,7 +181,7 @@ void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
 			unsigned int id = mat->aoMap ? mat->aoMap->getId() : 0;
 			if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 				std::string filepath = fileDialog();
-				mat->aoMap = new Texture(filepath);
+				mat->aoMap = CreateRef<Texture>(filepath);
 			}
 			ImGui::SameLine();
 			ImGui::Checkbox("Use    ", &(mat->useAoMap));
@@ -261,10 +258,10 @@ void Renderer::mouseMoved(double x, double y)
 	if (x > 350)
 	{
 		if (m_button == GLFW_MOUSE_BUTTON_LEFT)
-			m_scene->getCamera()->dragRotate(Eigen::Vector2f(x, y));
+			m_scene->getCamera()->dragRotate(Vec2(x, y));
 		else if (m_button == GLFW_MOUSE_BUTTON_RIGHT)
-			m_scene->getCamera()->dragTranslate(Eigen::Vector2f(x, y));
-		m_lastMousePos = Eigen::Vector2f(x, y);
+			m_scene->getCamera()->dragTranslate(Vec2(x, y));
+		m_lastMousePos = Vec2(x, y);
 	}
 }
 
