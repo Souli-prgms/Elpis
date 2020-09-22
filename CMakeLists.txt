@@ -5,56 +5,30 @@ add_compile_options("/std:c++latest")
 project("Elpis")
 set(TARGET "Elpis")
 
-set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
 
-set(HEADERS
-    include/Core.h
-	include/Renderer.h
-	include/Mesh.h
-	include/Shader.h
-	include/Camera.h
-	include/MeshLoader.h
-	include/Light.h
-	include/Texture.h
-	include/CubeMap.h
-	include/Scene.h
-	include/Entity.h
-	include/MaterialManager.h
+file(GLOB HEADERS
+    "src/Elpis/Include/*.h"
 )
 
-set(SOURCES
-	src/main.cpp
-	src/Renderer.cpp
-	src/Mesh.cpp
-	src/Shader.cpp
-	src/Camera.cpp
-	src/MeshLoader.cpp
-	src/Texture.cpp
-	src/CubeMap.cpp
-	src/Scene.cpp
-	src/Entity.cpp
-	src/MaterialManager.cpp
+file(GLOB SOURCES
+    "src/Elpis/*/*.cpp"
 )
 
-set(IMGUI_SOURCES 
-	 ${IMGUI_DIR}/imgui_impl_glfw.cpp
-	 ${IMGUI_DIR}/imgui_impl_opengl3.cpp 
-	 ${IMGUI_DIR}/imgui.cpp 
-	 ${IMGUI_DIR}/imgui_draw.cpp 
-	 ${IMGUI_DIR}/imgui_demo.cpp 
-	 ${IMGUI_DIR}/imgui_widgets.cpp
+file(GLOB IMGUI_SOURCES
+    "${IMGUI_DIR}/*.cpp"
 )
 
 set(STBI_SOURCES
 	thirdparty/stb_image/stb_image.cpp
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
-					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/eigen3
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/Elpis/Include
+					
+                    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/include
-					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/stb_image
 					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include
 					${IMGUI_DIR}
 )
@@ -65,6 +39,7 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/Release/x64
 )
 
 add_executable(${TARGET} ${SOURCES} ${HEADERS} ${IMGUI_SOURCES} ${STBI_SOURCES})
+target_precompile_headers(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/elpch.h)
 
 target_link_libraries(${TARGET} glew32 glfw3 opengl32 assimp-vc141-mtd)
 
