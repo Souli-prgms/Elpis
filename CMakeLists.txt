@@ -8,21 +8,10 @@ set(TARGET "Elpis")
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
 
-file(GLOB HEADERS
-    "src/Elpis/Include/*.h"
-)
-
-file(GLOB SOURCES
-    "src/Elpis/*/*.cpp"
-)
-
-file(GLOB IMGUI_SOURCES
-    "${IMGUI_DIR}/*.cpp"
-)
-
-set(STBI_SOURCES
-	thirdparty/stb_image/stb_image.cpp
-)
+file(GLOB HEADERS "src/Elpis/Include/*.h")
+file(GLOB SOURCES "src/Elpis/*/*.cpp")
+file(GLOB IMGUI_SOURCES "${IMGUI_DIR}/*.cpp")
+set(STBI_SOURCES thirdparty/stb_image/stb_image.cpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/Elpis/Include
 					
@@ -51,7 +40,6 @@ add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
 
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/bin/Release/x64/glew32.dll $(OutDir))
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/bin/assimp-vc141-mtd.dll $(OutDir))
-#add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/res $(OutDir)/res)
 
 add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND}
     -Dsrc_dir="${CMAKE_CURRENT_SOURCE_DIR}/res"
