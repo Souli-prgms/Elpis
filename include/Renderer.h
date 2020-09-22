@@ -32,7 +32,7 @@ private:
 	std::string fileDialog();
 
 	GLFWwindow* m_window;
-	Scene* m_scene;
+	Ref<Scene> m_scene;
 
 	int m_button = -1;
 	Vec2 m_lastMousePos;

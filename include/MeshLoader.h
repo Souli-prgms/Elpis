@@ -21,5 +21,5 @@ struct Vertex
 };
 
 namespace MeshLoader {
-	void loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Eigen::AlignedBox3f& bbox);
+	void loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Box3& bbox);
 }

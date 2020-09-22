@@ -3,7 +3,7 @@
 Renderer::Renderer(): m_width(1280), m_height(720)
 {
 	initWindow();
-	m_scene = new Scene();
+	m_scene = CreateRef<Scene>();
 
 	// Cubemap
 	m_scene->setCubemap("../../res/cubemaps/birchwood_4k.hdr");

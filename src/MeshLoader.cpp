@@ -1,6 +1,6 @@
 #include "MeshLoader.h"
 
-void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Eigen::AlignedBox3f& bbox)
+void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Box3& bbox)
 {
 	vertices.clear(); indices.clear();
 
@@ -24,4 +24,6 @@ void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vert
 		for (int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
+
+	delete scene;
 }
