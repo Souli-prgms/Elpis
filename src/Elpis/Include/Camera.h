@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core.h"
-
 Mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
 Mat4 perspectiveProjection(float l, float r, float b, float t, float n, float f);
 

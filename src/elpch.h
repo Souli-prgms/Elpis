@@ -12,4 +12,7 @@
 #include <math.h>
 
 #include <windows.h>
-#include <shobjidl.h> 
+#include <shobjidl.h>
+
+#include "Elpis/Include/Core.h"
+#include "Elpis/Include/Log.h"

@@ -3,6 +3,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <eigen3/Eigen/Eigen>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <stb_image/stb_image.h>
 
 // Pointers
 template<typename T>

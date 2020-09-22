@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Core.h"
-
 enum LightType
 {
 	Directional, Point
