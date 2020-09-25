@@ -5,7 +5,8 @@
 
 #include "Core.h"
 
-namespace Elpis {
+namespace Elpis
+{
 
 	class Log
 	{
@@ -18,7 +19,6 @@ namespace Elpis {
 		static Ref<spdlog::logger> s_CoreLogger;
 		static Ref<spdlog::logger> s_ClientLogger;
 	};
-
 }
 
 // Core log macros
