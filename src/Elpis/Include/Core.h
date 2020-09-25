@@ -8,6 +8,10 @@
 #include <assimp/postprocess.h>
 #include <stb_image/stb_image.h>
 
+#define BIT(x) (1 << x)
+#define EL_OK 1
+#define EL_KO 0
+
 // Pointers
 template<typename T>
 using Scope = std::unique_ptr<T>;

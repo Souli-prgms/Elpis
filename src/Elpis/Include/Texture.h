@@ -16,7 +16,7 @@ namespace Elpis
 		float* m_floatData;
 		unsigned int m_id;
 
-		void loadImage(const std::string& filename);
-		void loadHDR(const std::string& filename);
+		int loadImage(const std::string& filename);
+		int loadHDR(const std::string& filename);
 	};
 }

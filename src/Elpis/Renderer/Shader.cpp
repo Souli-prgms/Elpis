@@ -53,8 +53,7 @@ namespace Elpis
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght);
 			char* message = (char*)alloca(lenght * sizeof(char));
 			glGetShaderInfoLog(id, lenght, &lenght, message);
-			std::cout << "Failed to compile " << (typeconst == GL_VERTEX_SHADER ? "vertex" : "fragment") << std::endl;
-			std::cout << message << std::endl;
+			EL_CORE_ERROR("Failed to compile {0}: {1} {2}", typeconst == GL_VERTEX_SHADER ? "vertex" : "fragment", source, message);
 			glDeleteShader(id);
 			return 0;
 		}

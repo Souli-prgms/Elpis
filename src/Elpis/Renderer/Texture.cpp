@@ -4,10 +4,8 @@ namespace Elpis
 {
 	Texture::Texture(const std::string& filename)
 	{
-		if (std::filesystem::path(filename).extension() == ".hdr")
-			loadHDR(filename);
-		else
-			loadImage(filename);
+		int res = std::filesystem::path(filename).extension() == ".hdr" ? loadHDR(filename) : loadImage(filename);
+		if (res != EL_OK)	EL_CORE_ERROR("Failed to load texture: {0}", filename);
 	}
 
 	Texture::~Texture()
@@ -15,8 +13,9 @@ namespace Elpis
 		glDeleteTextures(1, &m_id);
 	}
 
-	void Texture::loadImage(const std::string& filename)
+	int Texture::loadImage(const std::string& filename)
 	{
+		int res = EL_KO;
 		m_data = stbi_load(filename.c_str(), &m_width, &m_height, &m_nbChannels, 0);
 
 		if (m_data)
@@ -40,15 +39,16 @@ namespace Elpis
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		}
 
-		else
-			std::cout << "Failed to load texture: " << filename << std::endl;
+			res = EL_OK;
+		}	
 
 		stbi_image_free(m_data);
+		return res;
 	}
-	void Texture::loadHDR(const std::string& filename)
+	int Texture::loadHDR(const std::string& filename)
 	{
+		int res = EL_KO;
 		stbi_set_flip_vertically_on_load(true);
 		m_floatData = stbi_loadf(filename.c_str(), &m_width, &m_height, &m_nbChannels, 0);
 
@@ -63,11 +63,11 @@ namespace Elpis
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			res = EL_OK;
 		}
 
-		else
-			std::cout << "Failed to load HDR: " << filename << std::endl;
-
 		stbi_image_free(m_floatData);
+		return res;
 	}
 }
