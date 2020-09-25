@@ -29,13 +29,13 @@ namespace Elpis
 		Ref<CubeMap> m_cubemap;
 		Box3 m_bbox;
 
-		std::map<std::string, Ref<Shader>> m_shaders;
+		std::unordered_map<std::string, Ref<Shader>> m_shaders;
 		std::vector<Ref<Entity>> m_entities;
 
 		std::vector<Ref<Light>> m_lights;
 
-		std::map<std::string, std::string> m_entity2Shader;
-		std::map<std::string, std::string> m_entity2Material;
+		std::unordered_map<std::string, std::string> m_entity2Shader;
+		std::unordered_map<std::string, std::string> m_entity2Material;
 
 		void initCamera();
 		void passLights(const Ref<Shader>& shader);

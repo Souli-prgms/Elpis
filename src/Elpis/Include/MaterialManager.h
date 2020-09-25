@@ -36,7 +36,7 @@ namespace Elpis
 		const Ref<Material>& getMaterial(const std::string& materialName) { return m_materials[materialName]; }
 
 	private:
-		std::map<std::string, Ref<Material>> m_materials;
+		std::unordered_map<std::string, Ref<Material>> m_materials;
 
 		static Ref<MaterialManager> s_instance;
 	};
