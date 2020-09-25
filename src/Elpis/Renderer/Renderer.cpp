@@ -2,9 +2,11 @@
 
 namespace Elpis
 {
-	Renderer::Renderer() : m_width(1280), m_height(720)
+	Renderer::Renderer()
 	{
-		initWindow();
+		m_window = Window::create(WindowProperties("Elpis Engine"));
+		m_window->setEventCallback(EL_BIND_EVENT_FN(Renderer::onEvent));
+
 		m_scene = createRef<Scene>();
 
 		// Cubemap
@@ -37,39 +39,11 @@ namespace Elpis
 		glfwTerminate();
 	}
 
-	void Renderer::initWindow()
-	{
-		if (!glfwInit())
-			exit(EXIT_FAILURE);
-
-		glfwWindowHint(GLFW_SAMPLES, 4);
-		m_window = glfwCreateWindow(m_width, m_height, "Elpis", NULL, NULL);
-
-		if (!m_window)
-		{
-			glfwTerminate();
-			exit(EXIT_FAILURE);
-		}
-
-		glfwMakeContextCurrent(m_window);
-
-		if (glewInit() != GLEW_OK)
-			exit(EXIT_FAILURE);
-
-		glfwSetWindowUserPointer(m_window, this);
-		setCallbacks();
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-	}
-
 	void Renderer::run()
 	{
 		ImGuiWindowFlags windowFlags = initInterface();
-		glViewport(0, 0, m_width, m_height);
-		while (!glfwWindowShouldClose(m_window))
+		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
+		while (!glfwWindowShouldClose((GLFWwindow*)m_window->getNativeWindow()))
 		{
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,10 +52,10 @@ namespace Elpis
 
 			setInterface(windowFlags);
 
-			glfwSwapBuffers(m_window);
+			glfwSwapBuffers((GLFWwindow*)m_window->getNativeWindow());
 			glfwPollEvents();
 		}
-		glfwMakeContextCurrent(m_window);
+		glfwMakeContextCurrent((GLFWwindow*)m_window->getNativeWindow());
 	}
 
 	ImGuiWindowFlags Renderer::initInterface()
@@ -89,11 +63,11 @@ namespace Elpis
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO &io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(m_width, m_height);
+		io.DisplaySize = ImVec2(m_window->getWidth(), m_window->getHeight());
 		io.Fonts->AddFontFromFileTTF("../../res/fonts/Arial.ttf", 18.0f);
 		ImGui::StyleColorsDark();
 
-		ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_window->getNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
 		ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
@@ -119,7 +93,7 @@ namespace Elpis
 		ImGui::NewFrame();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(350, m_height));
+		ImGui::SetNextWindowSize(ImVec2(350, m_window->getHeight()));
 		ImGui::Begin("Parameters", NULL, windowFlags);
 
 		{
@@ -211,115 +185,21 @@ namespace Elpis
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void Renderer::charPressed(int key)
+	void Renderer::onEvent(Event& e)
 	{
-
-	}
-
-	void Renderer::keyPressed(int key, int action, int mods)
-	{
-		switch (key)
-		{
-		case GLFW_KEY_ESCAPE:
-			glfwSetWindowShouldClose(m_window, true);
-			break;
-		}
-	}
-
-	void Renderer::reshapeWindow(int width, int height) {
-		glViewport(0, 0, width, height);
-		m_width = width;
-		m_height = height;
-	}
-
-	void Renderer::mouseScrolled(double x, double y)
-	{
-		m_scene->getCamera()->zoom((y > 0) ? 1.1 : 1. / 1.1);
-	}
-
-	void Renderer::mousePressed(GLFWwindow* window, int button, int action)
-	{
-		if (action == GLFW_PRESS) {
-			if (button == GLFW_MOUSE_BUTTON_LEFT)
-				m_scene->getCamera()->startRotation(m_lastMousePos);
-			else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-				m_scene->getCamera()->startTranslation(m_lastMousePos);
-			m_button = button;
-		}
-		else if (action == GLFW_RELEASE) {
-			if (m_button == GLFW_MOUSE_BUTTON_LEFT)
-				m_scene->getCamera()->endRotation();
-			else if (m_button == GLFW_MOUSE_BUTTON_RIGHT)
-				m_scene->getCamera()->endTranslation();
-			m_button = -1;
-		}
-	}
-
-	void Renderer::mouseMoved(double x, double y)
-	{
-		if (x > 350)
-		{
-			if (m_button == GLFW_MOUSE_BUTTON_LEFT)
-				m_scene->getCamera()->dragRotate(Vec2(x, y));
-			else if (m_button == GLFW_MOUSE_BUTTON_RIGHT)
-				m_scene->getCamera()->dragTranslate(Vec2(x, y));
-			m_lastMousePos = Vec2(x, y);
-		}
-	}
-
-	void Renderer::setCallbacks()
-	{
-		glfwSetWindowUserPointer(m_window, this);
-
-		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int key)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->charPressed(key);
-		});
-
-		glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->keyPressed(key, action, mods);
-		});
-
-		glfwSetScrollCallback(m_window, [](GLFWwindow* window, double x, double y)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->mouseScrolled(x, y);
-		});
-
-		glfwSetMouseButtonCallback(m_window, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->mousePressed(window, button, action);
-		});
-
-		glfwSetCursorPosCallback(m_window, [](GLFWwindow* window, double x, double y)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->mouseMoved(x, y);
-		});
-
-		glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int width, int height)
-		{
-			Renderer* viewer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-			viewer->reshapeWindow(width, height);
-		});
+		m_scene->onEvent(e);
 	}
 
 	std::string Renderer::fileDialog()
 	{
 		std::string filepath;
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED |
-			COINIT_DISABLE_OLE1DDE);
+		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 		if (SUCCEEDED(hr))
 		{
 			IFileOpenDialog *pFileOpen;
 
 			// Create the FileOpenDialog object.
-			hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
-				IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+			hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
 
 			if (SUCCEEDED(hr))
 			{

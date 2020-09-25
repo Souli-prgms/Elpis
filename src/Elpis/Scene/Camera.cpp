@@ -22,8 +22,6 @@ namespace Elpis
 		return m;
 	}
 
-
-
 	Mat4 perspectiveProjection(
 		float l, float r, float b, float t, float n, float f) {
 		float rpl = r + l;
@@ -42,7 +40,6 @@ namespace Elpis
 		return m;
 	}
 
-
 	Camera::Camera() :
 		m_scnCenter(Vec3::Zero()),
 		m_scnDistance(3.),
@@ -55,66 +52,53 @@ namespace Elpis
 		m_state(Idle) {
 	}
 
-
 	const Vec3& Camera::sceneCenter() const {
 		return m_scnCenter;
 	}
-
 
 	float Camera::sceneDistance() const {
 		return m_scnDistance;
 	}
 
-
 	float Camera::sceneRadius() const {
 		return m_scnRadius;
 	}
-
 
 	const Quat& Camera::sceneOrientation() const {
 		return m_scnOrientation;
 	}
 
-
 	const Box2& Camera::screenViewport() const {
 		return m_scrViewport;
 	}
-
 
 	float Camera::minNear() const {
 		return m_minNear;
 	}
 
-
 	float Camera::nearOffset() const {
 		return m_nearOffset;
 	}
-
 
 	float Camera::farOffset() const {
 		return m_farOffset;
 	}
 
-
 	float Camera::minScreenViewportSize() const {
 		return m_scrViewport.sizes().minCoeff();
 	}
-
 
 	bool Camera::isOrthographic() const {
 		return (m_scnDistance / m_scnRadius) > ORTHO_THRESOLD;
 	}
 
-
 	bool Camera::isPerspective() const {
 		return !isOrthographic();
 	}
 
-
 	Mat4 Camera::computeViewMatrix() const {
 		return Eigen::Affine3f(m_scnOrientation.inverse() * Eigen::Translation3f(-getPosition())).matrix();
 	}
-
 
 	Mat4 Camera::computeProjectionMatrix() const {
 		float scrMinSize = minScreenViewportSize();
@@ -134,7 +118,6 @@ namespace Elpis
 		}
 	}
 
-
 	Mat4 Camera::computeOrthoType() const {
 		float scrMinSize = minScreenViewportSize();
 		float r = m_scnRadius * m_scrViewport.sizes().x() / (scrMinSize);
@@ -147,52 +130,42 @@ namespace Elpis
 		m_scnCenter = scnCenter;
 	}
 
-
 	void Camera::setSceneDistance(float scnDistance) {
 		m_scnDistance = scnDistance;
 	}
-
 
 	void Camera::setSceneRadius(float scnRadius) {
 		m_scnRadius = scnRadius;
 	}
 
-
 	void Camera::setSceneOrientation(const Quat& scnOrientation) {
 		m_scnOrientation = scnOrientation;
 	}
-
 
 	void Camera::setScreenViewport(const Box2& scrViewport) {
 		m_scrViewport = scrViewport;
 	}
 
-
 	void Camera::setMinNear(float minNear) {
 		m_minNear = minNear;
 	}
-
 
 	void Camera::setNearFarOffsets(float nearOffset, float farOffset) {
 		m_nearOffset = nearOffset;
 		m_farOffset = farOffset;
 	}
 
-
 	bool Camera::isIdle() const {
 		return m_state == Idle;
 	}
-
 
 	void Camera::rotate(const Quat& rot) {
 		m_scnOrientation *= rot;
 	}
 
-
 	bool Camera::isRotating() const {
 		return m_state == Rotating;
 	}
-
 
 	void Camera::startRotation(const Vec2& scrPos) {
 		assert(m_state == Idle);
@@ -201,12 +174,10 @@ namespace Elpis
 		m_scnOrientInit = m_scnOrientation;
 	}
 
-
 	void Camera::dragRotate(const Vec2& scrPos) {
 		assert(m_state == Rotating);
 		m_scnOrientation = computeRotation(scrPos);
 	}
-
 
 	void Camera::cancelRotation() {
 		assert(m_state == Rotating);
@@ -214,17 +185,14 @@ namespace Elpis
 		m_scnOrientation = m_scnOrientInit;
 	}
 
-
 	void Camera::endRotation() {
 		assert(m_state == Rotating);
 		m_state = Idle;
 	}
 
-
 	bool Camera::isTranslating() const {
 		return m_state == Translating;
 	}
-
 
 	void Camera::startTranslation(const Vec2& scrPos) {
 		assert(m_state == Idle);
@@ -233,12 +201,10 @@ namespace Elpis
 		m_scnCenterInit = m_scnCenter;
 	}
 
-
 	void Camera::dragTranslate(const Vec2& scrPos) {
 		assert(m_state == Translating);
 		m_scnCenter = computeTranslation(scrPos);
 	}
-
 
 	void Camera::cancelTranslation() {
 		assert(m_state == Translating);
@@ -246,12 +212,10 @@ namespace Elpis
 		m_scnCenter = m_scnCenterInit;
 	}
 
-
 	void Camera::endTranslation() {
 		assert(m_state == Translating);
 		m_state = Idle;
 	}
-
 
 	void Camera::zoom(float factor) {
 		if (isPerspective())
@@ -259,11 +223,9 @@ namespace Elpis
 		m_scnRadius /= factor;
 	}
 
-
 	void Camera::grow(float factor) {
 		m_scnRadius *= factor;
 	}
-
 
 	void Camera::dollyZoom(float factor) {
 		if (m_scnDistance / m_scnRadius > ORTHO_THRESOLD)
@@ -271,11 +233,9 @@ namespace Elpis
 		m_scnDistance /= factor;
 	}
 
-
 	Vec2 Camera::normFromScr(const Vec2& scrPos) const {
 		return (scrPos - m_scrViewport.center()) / minScreenViewportSize();
 	}
-
 
 	Quat Camera::computeRotation(const Vec2& scrPos) const {
 		Vec2 v = (m_scrMouseInit - scrPos) * (float(2. * M_PI) / m_scrViewport.sizes().x());
@@ -283,7 +243,6 @@ namespace Elpis
 		Vec3 y = Vec3::UnitY();
 		return m_scnOrientInit * Quat(Eigen::AngleAxisf(v.x(), y)) * Quat(Eigen::AngleAxisf(v.y(), x));
 	}
-
 
 	Vec3 Camera::computeTranslation(const Vec2& scrPos) const {
 		Eigen::Matrix<float, 3, 2> m;
@@ -323,5 +282,54 @@ namespace Elpis
 		m.topRightCorner<3, 1>() = -R.transpose() * position;
 
 		return m;
+	}
+
+	void Camera::onEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.dispatch<MouseScrolledEvent>(EL_BIND_EVENT_FN(Camera::onMouseScrolled));
+		dispatcher.dispatch<MouseButtonPressedEvent>(EL_BIND_EVENT_FN(Camera::onMousePressed));
+		dispatcher.dispatch<MouseButtonReleasedEvent>(EL_BIND_EVENT_FN(Camera::onMouseReleased));
+		dispatcher.dispatch<MouseMovedEvent>(EL_BIND_EVENT_FN(Camera::onMouseMoved));
+	}
+
+	bool Camera::onMouseScrolled(MouseScrolledEvent& e)
+	{
+		zoom((e.getYOffset() > 0) ? 1.1 : 1. / 1.1);
+		return false;
+	}
+
+	bool Camera::onMousePressed(MouseButtonPressedEvent& e)
+	{
+		MouseCode button = e.getMouseButton();
+		if (button == MouseKey::ButtonLeft)
+			startRotation(m_scrMouseInit);
+		else if (button == MouseKey::ButtonRight)
+			startTranslation(m_scrMouseInit);
+
+		return false;
+	}
+
+	bool Camera::onMouseReleased(MouseButtonReleasedEvent& e)
+	{
+		MouseCode button = e.getMouseButton();
+		if (button == MouseKey::ButtonLeft && isRotating())
+			endRotation();
+		else if (button == MouseKey::ButtonRight && isTranslating())
+			endTranslation();
+		
+		return false;
+	}
+
+	bool Camera::onMouseMoved(MouseMovedEvent & e)
+	{
+		Vec2 pos = Vec2(e.getX(), e.getY());
+		if (isTranslating())
+			dragTranslate(pos);
+		else if (isRotating())
+			dragRotate(pos);
+		else m_scrMouseInit = pos;
+		
+		return false;
 	}
 }

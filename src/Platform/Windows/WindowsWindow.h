@@ -4,7 +4,7 @@
 #include "ApplicationEvent.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#include "GraphicsContext.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Elpis
 {

@@ -11,6 +11,9 @@
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+#include <utility>
+#include <functional>
+#include <algorithm>
 
 #include <math.h>
 

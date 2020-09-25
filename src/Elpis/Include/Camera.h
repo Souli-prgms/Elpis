@@ -1,5 +1,7 @@
 #pragma once
 
+#include "MouseEvent.h"
+
 namespace Elpis
 {
 	Mat4 orthographicProjection(float l, float r, float b, float t, float n, float f);
@@ -69,11 +71,18 @@ namespace Elpis
 		static Mat4 perspective(float fovy, float aspect, float zNear, float zFar);
 		static Mat4 lookAt(const Vec3& position, const Vec3& target, const Vec3& up);
 
+		void onEvent(Event& e);
+
 	private:
 		Vec2 normFromScr(const Vec2& scrPos) const;
 
 		Quat computeRotation(const Vec2& scrPos) const;
 		Vec3 computeTranslation(const Vec2& scrPos) const;
+
+		bool onMouseScrolled(MouseScrolledEvent& e);
+		bool onMousePressed(MouseButtonPressedEvent& e);
+		bool onMouseReleased(MouseButtonReleasedEvent& e);
+		bool onMouseMoved(MouseMovedEvent & e);
 
 		Vec3 m_scnCenter;
 		float m_scnDistance;

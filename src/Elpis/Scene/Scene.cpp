@@ -181,4 +181,9 @@ namespace Elpis
 	{
 		m_cubemap = createRef<CubeMap>(filepath);
 	}
+
+	void Scene::onEvent(Event& e)
+	{
+		m_cam->onEvent(e);
+	}
 }

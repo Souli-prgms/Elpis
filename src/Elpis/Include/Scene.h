@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Event.h"
 #include "MaterialManager.h"
 #include "Light.h"
 #include "Entity.h"
@@ -24,6 +25,7 @@ namespace Elpis
 		Ref<Entity> getEntity(int index) const { return m_entities[index]; }
 		Ref<CubeMap> getCubemap() const { return m_cubemap; }
 
+		void onEvent(Event& e);
 	private:
 		Ref<Camera> m_cam;
 		Ref<CubeMap> m_cubemap;

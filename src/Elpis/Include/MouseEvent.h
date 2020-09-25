@@ -50,7 +50,7 @@ namespace Elpis
 	class MouseButtonEvent : public Event
 	{
 	public:
-		MouseCode GetMouseButton() const { return m_button; }
+		MouseCode getMouseButton() const { return m_button; }
 
 		EVENT_CLASS_CATEGORY(EventCategory::Mouse | EventCategory::Input)
 	protected:

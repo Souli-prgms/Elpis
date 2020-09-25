@@ -5,6 +5,9 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Scene.h"
+#include "Window.h"
+#include "Event.h"
+#include "ApplicationEvent.h"
 
 namespace Elpis 
 {
@@ -15,28 +18,14 @@ namespace Elpis
 		~Renderer();
 
 		void run();
-
-		void charPressed(int key);
-		void keyPressed(int key, int action, int mods);
-		void mouseScrolled(double x, double y);
-		void mousePressed(GLFWwindow* window, int button, int action);
-		void mouseMoved(double x, double y);
-		void reshapeWindow(int width, int height);
+		void onEvent(Event& e);
 
 	private:
-		void initWindow();
-		ImGuiWindowFlags initInterface();
-		void setInterface(const ImGuiWindowFlags& windowFlags);
-		void setCallbacks();
-		std::string fileDialog();
+		ImGuiWindowFlags initInterface(); //TO MOVE
+		void setInterface(const ImGuiWindowFlags& windowFlags); // TO MOVE
+		std::string fileDialog(); // TO MOVE
 
-		GLFWwindow* m_window;
+		Scope<Window> m_window;
 		Ref<Scene> m_scene;
-
-		int m_button = -1;
-		Vec2 m_lastMousePos;
-
-		int m_width;
-		int m_height;
 	};
 }
