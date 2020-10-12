@@ -105,7 +105,7 @@ namespace Elpis
 			{
 				if (ImGui::Button("..."))
 				{
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					if (!filepath.empty())
 						m_scene->getEntity(0)->setMesh(Mesh::createMesh(filepath));
 				}
@@ -114,7 +114,7 @@ namespace Elpis
 			{
 				uint32_t id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					mat->basecolorMap = createRef<Texture>(filepath);
 				}
 				ImGui::SameLine();
@@ -125,7 +125,7 @@ namespace Elpis
 			{
 				uint32_t id = mat->normalMap ? mat->normalMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					mat->normalMap = createRef<Texture>(filepath);
 				}
 				ImGui::SameLine();
@@ -135,7 +135,7 @@ namespace Elpis
 			{
 				uint32_t id = mat->metallicMap ? mat->metallicMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					mat->metallicMap = createRef<Texture>(filepath);
 				}
 				ImGui::SameLine();
@@ -146,7 +146,7 @@ namespace Elpis
 			{
 				uint32_t id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					mat->roughnessMap = createRef<Texture>(filepath);
 				}
 				ImGui::SameLine();
@@ -157,7 +157,7 @@ namespace Elpis
 			{
 				uint32_t id = mat->aoMap ? mat->aoMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
-					std::string filepath = fileDialog();
+					std::string filepath = FileDialog::getFile();
 					mat->aoMap = createRef<Texture>(filepath);
 				}
 				ImGui::SameLine();
@@ -172,7 +172,7 @@ namespace Elpis
 
 			if (ImGui::Button("Load environment map"))
 			{
-				std::string filepath = fileDialog();
+				std::string filepath = FileDialog::getFile();
 				if (!filepath.empty())
 					m_scene->setCubemap(filepath);
 			}
@@ -189,42 +189,5 @@ namespace Elpis
 	void Renderer::onEvent(Event& e)
 	{
 		m_scene->onEvent(e);
-	}
-
-	std::string Renderer::fileDialog()
-	{
-		std::string filepath;
-		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
-		if (SUCCEEDED(hr))
-		{
-			IFileOpenDialog *pFileOpen;
-
-			// Create the FileOpenDialog object.
-			hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
-
-			if (SUCCEEDED(hr))
-			{
-				// Show the Open dialog box.
-				hr = pFileOpen->Show(NULL);
-
-				// Get the file name from the dialog box.
-				if (SUCCEEDED(hr))
-				{
-					IShellItem *pItem;
-					hr = pFileOpen->GetResult(&pItem);
-					if (SUCCEEDED(hr))
-					{
-						PWSTR pszFilePath;
-						hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-						std::wstring ws(pszFilePath);
-						filepath = std::string(ws.begin(), ws.end());
-						pItem->Release();
-					}
-				}
-				pFileOpen->Release();
-			}
-			CoUninitialize();
-		}
-		return filepath;
 	}
 }
