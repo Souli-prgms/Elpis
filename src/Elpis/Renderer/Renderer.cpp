@@ -10,7 +10,7 @@ namespace Elpis
 		m_scene = createRef<Scene>();
 
 		// Cubemap
-		m_scene->setCubemap("../../res/cubemaps/birchwood_4k.hdr");
+		m_scene->setCubemap(EL_RESOURCE_PATH("cubemaps/birchwood_4k.hdr"));
 
 		// Lights
 		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(-10.0, 10.0, 10.0)));
@@ -19,7 +19,7 @@ namespace Elpis
 		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(10.0, -10.0, 10.0)));
 
 		// Shaders
-		m_scene->addShader(createRef<Shader>("../../res/shaders/PBR.shader"), "PBR");
+		m_scene->addShader(createRef<Shader>(EL_RESOURCE_PATH("shaders/PBR.shader")), "PBR");
 
 		// Materials
 		std::string textureName = "basic";
@@ -27,7 +27,7 @@ namespace Elpis
 		matManager->addMaterial(textureName);
 
 		// Meshes
-		Ref<Mesh> mesh = Mesh::createMesh("../../res/models/Cerberus_LP.FBX");
+		Ref<Mesh> mesh = Mesh::createMesh(EL_RESOURCE_PATH("models/Cerberus_LP.FBX"));
 
 		// Entities
 		m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 0, 0));
@@ -64,7 +64,8 @@ namespace Elpis
 		ImGui::CreateContext();
 		ImGuiIO &io = ImGui::GetIO();
 		io.DisplaySize = ImVec2(m_window->getWidth(), m_window->getHeight());
-		io.Fonts->AddFontFromFileTTF("../../res/fonts/Arial.ttf", 18.0f);
+		std::string fontPath = EL_RESOURCE_PATH("fonts/Arial.ttf");
+		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f);
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_window->getNativeWindow(), true);

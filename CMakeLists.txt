@@ -28,6 +28,8 @@ link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/Release/x64
 				 ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/lib
 )
 
+add_definitions(-DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/res")
+
 add_executable(${TARGET} ${SOURCES} ${HEADERS} ${IMGUI_SOURCES} ${STBI_SOURCES})
 target_precompile_headers(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/elpch.h)
 
