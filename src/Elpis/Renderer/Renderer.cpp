@@ -112,7 +112,7 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Albedo"))
 			{
-				unsigned int id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
+				uint32_t id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = fileDialog();
 					mat->basecolorMap = createRef<Texture>(filepath);
@@ -123,7 +123,7 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Normals"))
 			{
-				unsigned int id = mat->normalMap ? mat->normalMap->getId() : 0;
+				uint32_t id = mat->normalMap ? mat->normalMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = fileDialog();
 					mat->normalMap = createRef<Texture>(filepath);
@@ -133,7 +133,7 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Metalness"))
 			{
-				unsigned int id = mat->metallicMap ? mat->metallicMap->getId() : 0;
+				uint32_t id = mat->metallicMap ? mat->metallicMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = fileDialog();
 					mat->metallicMap = createRef<Texture>(filepath);
@@ -144,7 +144,7 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Roughness"))
 			{
-				unsigned int id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
+				uint32_t id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = fileDialog();
 					mat->roughnessMap = createRef<Texture>(filepath);
@@ -155,7 +155,7 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Ao"))
 			{
-				unsigned int id = mat->aoMap ? mat->aoMap->getId() : 0;
+				uint32_t id = mat->aoMap ? mat->aoMap->getId() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = fileDialog();
 					mat->aoMap = createRef<Texture>(filepath);

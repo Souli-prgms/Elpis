@@ -7,7 +7,7 @@ namespace Elpis
 {
 	class Mesh {
 	public:
-		Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Box3& bbox);
+		Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& faceIds, const Box3& bbox);
 		~Mesh();
 
 		static Ref<Mesh> createMesh(const std::string& filepath);
@@ -19,7 +19,7 @@ namespace Elpis
 
 	private:
 		std::vector<Vertex> m_vertices;
-		std::vector<unsigned int> m_faceIds;
+		std::vector<uint32_t> m_faceIds;
 
 		Box3 m_bbox;
 

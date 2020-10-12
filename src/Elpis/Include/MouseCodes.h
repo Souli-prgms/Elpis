@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	using MouseCode = unsigned int;
+	using MouseCode = uint32_t;
 
 	namespace MouseKey
 	{

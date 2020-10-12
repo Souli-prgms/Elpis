@@ -16,8 +16,8 @@ namespace Elpis
 
 		void onUpdate() override;
 
-		unsigned int getWidth() const override { return m_data.width; }
-		unsigned int getHeight() const override { return m_data.height; }
+		uint32_t getWidth() const override { return m_data.width; }
+		uint32_t getHeight() const override { return m_data.height; }
 
 		void setEventCallback(const EventCallbackFn& callback) override { m_data.eventCallback = callback; }
 		void setVSync(bool enabled) override;
@@ -34,7 +34,7 @@ namespace Elpis
 		struct WindowData
 		{
 			std::string title;
-			unsigned int width, height;
+			uint32_t width, height;
 			bool vSync;
 
 			EventCallbackFn eventCallback;

@@ -7,10 +7,10 @@ namespace Elpis
 	struct WindowProperties
 	{
 		std::string title;
-		unsigned int width;
-		unsigned int height;
+		uint32_t width;
+		uint32_t height;
 
-		WindowProperties(const std::string& name = "Elpis Engine", unsigned int w = 1280, unsigned int h = 720) : title(name), width(w), height(h) {}
+		WindowProperties(const std::string& name = "Elpis Engine", uint32_t w = 1280, uint32_t h = 720) : title(name), width(w), height(h) {}
 	};
 
 	class Window

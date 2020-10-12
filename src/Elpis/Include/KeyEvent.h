@@ -20,9 +20,9 @@ namespace Elpis
 	class KeyPressedEvent : public KeyEvent
 	{
 	public:
-		KeyPressedEvent(const KeyCode keycode, const unsigned int repeatCount): KeyEvent(keycode), m_repeatCount(repeatCount) {}
+		KeyPressedEvent(const KeyCode keycode, const uint32_t repeatCount): KeyEvent(keycode), m_repeatCount(repeatCount) {}
 
-		unsigned int getRepeatCount() const { return m_repeatCount; }
+		uint32_t getRepeatCount() const { return m_repeatCount; }
 
 		std::string toString() const override
 		{
@@ -33,7 +33,7 @@ namespace Elpis
 
 		EVENT_CLASS_TYPE(KeyPressed)
 	private:
-		unsigned int m_repeatCount;
+		uint32_t m_repeatCount;
 	};
 
 	class KeyReleasedEvent : public KeyEvent

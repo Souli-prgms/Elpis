@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	using KeyCode = unsigned int;
+	using KeyCode = uint32_t;
 
 	namespace Key
 	{

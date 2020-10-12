@@ -13,10 +13,10 @@ namespace Elpis
 		~CubeMap();
 
 		void render(const Ref<Camera>& cam);
-		unsigned int getEnvironmentMap() const { return m_envCubemap; }
-		unsigned int getIrradianceMap() const { return m_irradianceMap; }
-		unsigned int getPreFilterMap() const { return m_preFilterMap; }
-		unsigned int getBRDFTexture() const { return m_brdfTexture; }
+		uint32_t getEnvironmentMap() const { return m_envCubemap; }
+		uint32_t getIrradianceMap() const { return m_irradianceMap; }
+		uint32_t getPreFilterMap() const { return m_preFilterMap; }
+		uint32_t getBRDFTexture() const { return m_brdfTexture; }
 
 		int getMaxMipLevels() const { return m_maxMipLevel; }
 		float& getExposure() { return m_exposure; }
@@ -36,13 +36,13 @@ namespace Elpis
 		Ref<Shader> m_preFilterShader;
 		Ref<Shader> m_brdfShader;
 
-		unsigned int m_envCubemap;
-		unsigned int m_irradianceMap;
-		unsigned int m_preFilterMap;
-		unsigned int m_brdfTexture;
+		uint32_t m_envCubemap;
+		uint32_t m_irradianceMap;
+		uint32_t m_preFilterMap;
+		uint32_t m_brdfTexture;
 
-		unsigned int m_captureFBO;
-		unsigned int m_captureRBO;
+		uint32_t m_captureFBO;
+		uint32_t m_captureRBO;
 
 		int m_maxMipLevel;
 		float m_exposure;

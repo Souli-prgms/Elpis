@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& faceIds, const Box3& bbox) : m_ready(false), m_vertices(vertices), m_faceIds(faceIds), m_bbox(bbox)
+	Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& faceIds, const Box3& bbox) : m_ready(false), m_vertices(vertices), m_faceIds(faceIds), m_bbox(bbox)
 	{
 	}
 
@@ -14,7 +14,7 @@ namespace Elpis
 	Ref<Mesh> Mesh::createMesh(const std::string& filepath)
 	{
 		std::vector<Vertex> vertices;
-		std::vector<unsigned int> indices;
+		std::vector<uint32_t> indices;
 		Box3 bbox;
 		MeshLoader::loadMesh(filepath, vertices, indices, bbox);
 		return createRef<Mesh>(vertices, indices, bbox);
@@ -24,7 +24,7 @@ namespace Elpis
 	{
 		int nVertices = (nU + 1) * (nV + 1);
 		std::vector<Vertex> vertices(nVertices);
-		std::vector<unsigned int> faceIds;
+		std::vector<uint32_t> faceIds;
 		Box3 bbox;
 
 		for (int v = 0; v <= nV; v++)
@@ -67,7 +67,7 @@ namespace Elpis
 		Vertex(Vec3(1.0f, -1.0f, 0.0f), n, Vec2(1.0f, 0.0f)) };
 		Box3 bbox;
 		bbox.extend(Vec3(-1.0f, -1.0f, 0.0f)); bbox.extend(Vec3(1.0f, 1.0f, 0.0f));
-		std::vector<unsigned int> faceIds = { 1, 0, 3, 1, 3, 2 };
+		std::vector<uint32_t> faceIds = { 1, 0, 3, 1, 3, 2 };
 		return createRef<Mesh>(vertices, faceIds, bbox);
 	}
 

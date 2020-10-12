@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Box3& bbox)
+	void MeshLoader::loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, Box3& bbox)
 	{
 		vertices.clear(); indices.clear();
 

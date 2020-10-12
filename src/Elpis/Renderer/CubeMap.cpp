@@ -69,7 +69,7 @@ namespace Elpis
 
 		glGenTextures(1, &m_envCubemap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
-		for (unsigned int i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 6; ++i)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, bufferSize, bufferSize, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
@@ -88,7 +88,7 @@ namespace Elpis
 
 		glViewport(0, 0, bufferSize, bufferSize); // don't forget to configure the viewport to the capture dimensions.
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
-		for (unsigned int i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 6; ++i)
 		{
 			m_cubemapShader->setMat4("view_matrix", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_envCubemap, 0);
@@ -106,7 +106,7 @@ namespace Elpis
 
 		glGenTextures(1, &m_irradianceMap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_irradianceMap);
-		for (unsigned int i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 6; ++i)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, bufferSize, bufferSize, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
@@ -128,7 +128,7 @@ namespace Elpis
 
 		glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
-		for (unsigned int i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 6; ++i)
 		{
 			m_irradianceShader->setMat4("view_matrix", captureViews[i]);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
@@ -146,7 +146,7 @@ namespace Elpis
 		int size = 1024;
 		glGenTextures(1, &m_preFilterMap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_preFilterMap);
-		for (unsigned int i = 0; i < 6; ++i)
+		for (uint32_t i = 0; i < 6; ++i)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, size, size, 0, GL_RGB, GL_FLOAT, nullptr);
 		}
@@ -166,17 +166,17 @@ namespace Elpis
 
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
 
-		for (unsigned int mip = 0; mip < m_maxMipLevel; ++mip)
+		for (uint32_t mip = 0; mip < m_maxMipLevel; ++mip)
 		{
-			unsigned int mipWidth = size * std::pow(0.5, mip);
-			unsigned int mipHeight = size * std::pow(0.5, mip);
+			uint32_t mipWidth = size * std::pow(0.5, mip);
+			uint32_t mipHeight = size * std::pow(0.5, mip);
 			glBindRenderbuffer(GL_RENDERBUFFER, m_captureRBO);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 			glViewport(0, 0, mipWidth, mipHeight);
 
 			float roughness = (float)mip / (float)(m_maxMipLevel - 1);
 			m_preFilterShader->setFloat("roughness", roughness);
-			for (unsigned int i = 0; i < 6; ++i)
+			for (uint32_t i = 0; i < 6; ++i)
 			{
 				m_preFilterShader->setMat4("view_matrix", captureViews[i]);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, m_preFilterMap, mip);

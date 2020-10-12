@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	static unsigned int s_GLFWWindowCount = 0;
+	static uint32_t s_GLFWWindowCount = 0;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
@@ -91,7 +91,7 @@ namespace Elpis
 			}
 		});
 
-		glfwSetCharCallback(m_window, [](GLFWwindow* window, unsigned int keycode)
+		glfwSetCharCallback(m_window, [](GLFWwindow* window, uint32_t keycode)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 

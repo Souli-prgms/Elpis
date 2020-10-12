@@ -39,8 +39,8 @@ namespace Elpis
 		m_fragmentSource = ss[1].str();
 	}
 
-	unsigned int Shader::compileShader(unsigned int typeconst, const std::string& source) {
-		unsigned int id = glCreateShader(typeconst);
+	uint32_t Shader::compileShader(uint32_t typeconst, const std::string& source) {
+		uint32_t id = glCreateShader(typeconst);
 		const char* src = source.c_str();
 		glShaderSource(id, 1, &src, nullptr);
 		glCompileShader(id);
@@ -63,8 +63,8 @@ namespace Elpis
 
 	void Shader::createShader() {
 		m_id = glCreateProgram();
-		unsigned int vs = compileShader(GL_VERTEX_SHADER, m_vertexSource);
-		unsigned int fs = compileShader(GL_FRAGMENT_SHADER, m_fragmentSource);
+		uint32_t vs = compileShader(GL_VERTEX_SHADER, m_vertexSource);
+		uint32_t fs = compileShader(GL_FRAGMENT_SHADER, m_fragmentSource);
 
 		glAttachShader(m_id, vs);
 		glAttachShader(m_id, fs);
@@ -116,7 +116,7 @@ namespace Elpis
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, mat.data());
 	}
 
-	void Shader::setInt(const char* name, unsigned int i) const
+	void Shader::setInt(const char* name, uint32_t i) const
 	{
 		glUniform1i(glGetUniformLocation(m_id, name), i);
 	}

@@ -14,6 +14,6 @@ namespace Elpis
 	};
 
 	namespace MeshLoader {
-		void loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, Box3& bbox);
+		void loadMesh(const std::string& filepath, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, Box3& bbox);
 	}
 }
