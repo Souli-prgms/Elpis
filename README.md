@@ -5,8 +5,7 @@
 ![Screenshot](res/Elpis_Capture.PNG "Elpis Screenshot")
 
 ### TO DO:
-- Rendering to frame buffer
-- ImGui Docking
+- Clean layers and event handling
 - FXAA 
 - Skinning  
 - Handle scripts
