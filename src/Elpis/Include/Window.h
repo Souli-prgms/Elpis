@@ -10,7 +10,7 @@ namespace Elpis
 		uint32_t width;
 		uint32_t height;
 
-		WindowProperties(const std::string& name = "Elpis Engine", uint32_t w = 1280, uint32_t h = 720) : title(name), width(w), height(h) {}
+		WindowProperties(const std::string& name = "Elpis Engine", uint32_t w = 1920, uint32_t h = 1080) : title(name), width(w), height(h) {}
 	};
 
 	class Window

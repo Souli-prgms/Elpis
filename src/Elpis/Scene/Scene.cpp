@@ -34,9 +34,7 @@ namespace Elpis
 	void Scene::render()
 	{
 		for (std::vector<Ref<Entity>>::iterator it = m_entities.begin(); it < m_entities.end(); it++)
-		{
 			renderEntity((*it), m_shaders[m_entity2Shader[(*it)->getName()]], true);
-		}
 		m_cubemap->render(m_cam);
 	}
 
@@ -44,7 +42,7 @@ namespace Elpis
 	{
 		m_cam = createRef<Camera>();
 		updateCameraWithBbox();
-		m_cam->setScreenViewport(Eigen::AlignedBox2f(Vec2(0.0, 0.0), Vec2(1280, 720)));
+		m_cam->setScreenViewport(Eigen::AlignedBox2f(Vec2(0.0, 0.0), Vec2(1920, 1080)));
 	}
 
 	void Scene::updateCameraWithBbox()
@@ -184,6 +182,7 @@ namespace Elpis
 
 	void Scene::onEvent(Event& e)
 	{
-		m_cam->onEvent(e);
+		if (!e.handled)
+			m_cam->onEvent(e);
 	}
 }

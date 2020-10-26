@@ -32,6 +32,12 @@ namespace Elpis
 		// Entities
 		m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 0, 0));
 		m_scene->getEntity(0)->rotate(-M_PI_2, Vec3(1, 0, 0));
+
+		// Framebuffer
+		FramebufferSpecification fbSpec;
+		fbSpec.width = m_window->getWidth();
+		fbSpec.height = m_window->getHeight();
+		m_framebuffer = Framebuffer::create(fbSpec);
 	}
 
 	Renderer::~Renderer()
@@ -41,32 +47,44 @@ namespace Elpis
 
 	void Renderer::run()
 	{
-		ImGuiWindowFlags windowFlags = initInterface();
+		initInterface();
 		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
 		while (!glfwWindowShouldClose((GLFWwindow*)m_window->getNativeWindow()))
 		{
+			m_framebuffer->bind();
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			m_scene->render();
+			m_framebuffer->unbind();
 
-			setInterface(windowFlags);
+			setInterface();
 
 			glfwSwapBuffers((GLFWwindow*)m_window->getNativeWindow());
 			glfwPollEvents();
+			
 		}
 		glfwMakeContextCurrent((GLFWwindow*)m_window->getNativeWindow());
 	}
 
-	ImGuiWindowFlags Renderer::initInterface()
+	void Renderer::initInterface()
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO &io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 		io.DisplaySize = ImVec2(m_window->getWidth(), m_window->getHeight());
 		std::string fontPath = EL_RESOURCE_PATH("fonts/Arial.ttf");
 		io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f);
 		ImGui::StyleColorsDark();
+
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
 
 		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)m_window->getNativeWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 330");
@@ -77,26 +95,66 @@ namespace Elpis
 		ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
-
-		ImGuiWindowFlags windowFlags = 0;
-		windowFlags |= ImGuiWindowFlags_NoMove;
-		windowFlags |= ImGuiWindowFlags_NoResize;
-
-		return windowFlags;
 	}
 
-	void Renderer::setInterface(const ImGuiWindowFlags& windowFlags)
+	void Renderer::setInterface()
 	{
-		Ref<Material> mat = MaterialManager::getInstance()->getMaterial("basic");
-
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImVec2(350, m_window->getHeight()));
-		ImGui::Begin("Parameters", NULL, windowFlags);
+		static bool dockspaceOpen = true;
+		static bool optFullscreenPersistant = true;
+		bool optFullscreen = optFullscreenPersistant;
+		static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
 
+		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (optFullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		if (dockspaceFlags && ImGuiDockNodeFlags_PassthruCentralNode)
+			windowFlags |= ImGuiWindowFlags_NoBackground;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
+		ImGui::PopStyleVar();
+
+		if (optFullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspaceID = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), dockspaceFlags);
+		}
+
+		style.WindowMinSize.x = minWinSizeX;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+		ImGui::Begin("Viewport");
+		m_blockEvents = !ImGui::IsWindowHovered();
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		uint64_t textureID = m_framebuffer->getColorAttachmentRendererID();
+		ImGui::Image(reinterpret_cast<void*>(textureID), viewportPanelSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		ImGui::End();
+		ImGui::PopStyleVar();
+
+		Ref<Material> mat = MaterialManager::getInstance()->getMaterial("basic");
+		ImGui::Begin("Parameters");
 		{
 			ImGui::BeginChild("Model", ImVec2(0, 520), true, ImGuiWindowFlags_None);
 			static int e = 1;
@@ -166,7 +224,6 @@ namespace Elpis
 			}
 			ImGui::EndChild();
 		}
-
 		{
 			ImGui::BeginChild("Environment", ImVec2(0, 150), true, ImGuiWindowFlags_None);
 
@@ -181,13 +238,23 @@ namespace Elpis
 			ImGui::EndChild();
 		}
 		ImGui::End();
+		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backupCurrentContext);
+		}
 	}
 
 	void Renderer::onEvent(Event& e)
 	{
-		m_scene->onEvent(e);
+		if (!m_blockEvents)
+			m_scene->onEvent(e);
 	}
 }

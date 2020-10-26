@@ -9,6 +9,7 @@
 #include "Event.h"
 #include "ApplicationEvent.h"
 #include "FileDialog.h"
+#include "Framebuffer.h"
 
 namespace Elpis 
 {
@@ -22,10 +23,11 @@ namespace Elpis
 		void onEvent(Event& e);
 
 	private:
-		ImGuiWindowFlags initInterface(); //TO MOVE
-		void setInterface(const ImGuiWindowFlags& windowFlags); // TO MOVE
-
+		void initInterface(); //TO MOVE
+		void setInterface();
 		Scope<Window> m_window;
 		Ref<Scene> m_scene;
+		Ref<Framebuffer> m_framebuffer;
+		bool m_blockEvents;
 	};
 }
