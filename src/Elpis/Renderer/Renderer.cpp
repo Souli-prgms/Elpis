@@ -26,12 +26,21 @@ namespace Elpis
 		Ref<MaterialManager> matManager = MaterialManager::getInstance();
 		matManager->addMaterial(textureName);
 
+		std::string groundMat = "ground";
+		matManager->addMaterial(groundMat);
+		matManager->getMaterial(groundMat)->metallic = 0.0;
+
+
 		// Meshes
 		Ref<Mesh> mesh = Mesh::createMesh(EL_RESOURCE_PATH("models/Cerberus_LP.FBX"));
+		Ref<Mesh> quad = Mesh::createMesh(EL_RESOURCE_PATH("models/cube.obj"));
 
 		// Entities
-		m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 0, 0));
+		m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 50, -50));
 		m_scene->getEntity(0)->rotate(-M_PI_2, Vec3(1, 0, 0));
+
+		m_scene->addEntity(quad, "quad", "PBR", groundMat, Vec3(0, 0, 0));
+		m_scene->getEntity(1)->scale(150., 1., 150.);
 
 		// Framebuffer
 		FramebufferSpecification fbSpec;

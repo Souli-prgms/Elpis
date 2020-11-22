@@ -53,3 +53,8 @@ namespace Elpis {
 	typedef Eigen::AlignedBox2f Box2;
 	typedef Eigen::AlignedBox3f Box3;
 }
+
+/*extern "C" {
+	_declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}*/
