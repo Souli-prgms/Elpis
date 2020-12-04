@@ -16,11 +16,11 @@ namespace Elpis
 	CubeMap::CubeMap(const std::string& filepath) : m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 	{
 		m_texture = createScope<Texture>(filepath);
-		m_cubemapShader = createRef<Shader>(EL_RESOURCE_PATH("shaders/Cubemap.shader"));
-		m_backgroundShader = createRef<Shader>(EL_RESOURCE_PATH("shaders/Background.shader"));
-		m_irradianceShader = createRef<Shader>(EL_RESOURCE_PATH("shaders/Irradiance.shader"));
-		m_preFilterShader = createRef<Shader>(EL_RESOURCE_PATH("shaders/PreFilter.shader"));
-		m_brdfShader = createRef<Shader>(EL_RESOURCE_PATH("shaders/BRDF.shader"));
+		m_cubemapShader = Shader::create(EL_RESOURCE_PATH("shaders/Cubemap.shader"));
+		m_backgroundShader = Shader::create(EL_RESOURCE_PATH("shaders/Background.shader"));
+		m_irradianceShader = Shader::create(EL_RESOURCE_PATH("shaders/Irradiance.shader"));
+		m_preFilterShader = Shader::create(EL_RESOURCE_PATH("shaders/PreFilter.shader"));
+		m_brdfShader = Shader::create(EL_RESOURCE_PATH("shaders/BRDF.shader"));
 		m_cube = Mesh::createMesh(EL_RESOURCE_PATH("models/cube.obj"));
 		m_quad = Mesh::createQuad();
 

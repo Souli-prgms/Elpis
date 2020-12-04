@@ -14,7 +14,6 @@ namespace Elpis
 		Scene();
 		~Scene();
 
-		void addShader(const Ref<Shader>& shader, const std::string& name);
 		void addEntity(const Ref<Mesh>& mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Vec3& pos);
 		void addLight(const Ref<Light>& light);
 
@@ -31,13 +30,8 @@ namespace Elpis
 		Ref<CubeMap> m_cubemap;
 		Box3 m_bbox;
 
-		std::unordered_map<std::string, Ref<Shader>> m_shaders;
 		std::vector<Ref<Entity>> m_entities;
-
 		std::vector<Ref<Light>> m_lights;
-
-		std::unordered_map<std::string, std::string> m_entity2Shader;
-		std::unordered_map<std::string, std::string> m_entity2Material;
 
 		void initCamera();
 		void passLights(const Ref<Shader>& shader);

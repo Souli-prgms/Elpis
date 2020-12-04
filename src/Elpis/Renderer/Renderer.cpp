@@ -14,32 +14,24 @@ namespace Elpis
 
 		// Lights
 		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(-10.0, 10.0, 10.0)));
-		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(10.0, 10.0, 10.0)));
-		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(-10.0, -10.0, 10.0)));
-		m_scene->addLight(createRef<Light>(LightType::Point, Vec3(10.0, -10.0, 10.0)));
 
 		// Shaders
-		m_scene->addShader(createRef<Shader>(EL_RESOURCE_PATH("shaders/PBR.shader")), "PBR");
+		SHADER_LIB->load("PBR", EL_RESOURCE_PATH("shaders/PBR.shader"));
 
 		// Materials
-		std::string textureName = "basic";
-		Ref<MaterialManager> matManager = MaterialManager::getInstance();
-		matManager->addMaterial(textureName);
-
-		std::string groundMat = "ground";
-		matManager->addMaterial(groundMat);
-		matManager->getMaterial(groundMat)->metallic = 0.0;
-
+		Ref<Material>& basicMat = MATERIAL_LIB->addMaterial("basic");
+		Ref<Material> groundMat = MATERIAL_LIB->addMaterial("ground");
+		groundMat->metallic = 0.0;
 
 		// Meshes
 		Ref<Mesh> mesh = Mesh::createMesh(EL_RESOURCE_PATH("models/Cerberus_LP.FBX"));
 		Ref<Mesh> quad = Mesh::createMesh(EL_RESOURCE_PATH("models/cube.obj"));
 
 		// Entities
-		m_scene->addEntity(mesh, "mesh", "PBR", textureName, Vec3(0, 50, -50));
+		m_scene->addEntity(mesh, "mesh", "PBR", "basic", Vec3(0, 50, -50));
 		m_scene->getEntity(0)->rotate(-M_PI_2, Vec3(1, 0, 0));
 
-		m_scene->addEntity(quad, "quad", "PBR", groundMat, Vec3(0, 0, 0));
+		m_scene->addEntity(quad, "quad", "PBR", "ground", Vec3(0, 0, 0));
 		m_scene->getEntity(1)->scale(150., 1., 150.);
 
 		// Framebuffer
@@ -162,7 +154,7 @@ namespace Elpis
 		ImGui::End();
 		ImGui::PopStyleVar();
 
-		Ref<Material> mat = MaterialManager::getInstance()->getMaterial("basic");
+		Ref<Material> mat = MATERIAL_LIB->getMaterial("basic");
 		ImGui::Begin("Parameters");
 		{
 			ImGui::BeginChild("Model", ImVec2(0, 520), true, ImGuiWindowFlags_None);

@@ -1,123 +1,43 @@
 #include "Shader.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Elpis
 {
-	Shader::Shader(const std::string& filepath)
+	ShaderLibrary* ShaderLibrary::s_instance = 0;
+
+	Ref<Shader> Shader::create(const std::string& filepath)
 	{
-		parseShader(filepath);
-		createShader();
+		return createRef<OpenGLShader>(filepath);
 	}
 
-	Shader::~Shader()
+	void ShaderLibrary::add(const std::string& name, const Ref<Shader>& shader)
 	{
-		glDeleteProgram(m_id);
+		EL_CORE_ASSERT(!exists(name), "Shader already exists!");
+		m_shaders[name] = shader;
 	}
 
-	void Shader::parseShader(const std::string& filepath)
+	Ref<Shader> ShaderLibrary::load(const std::string& name, const std::string& filepath)
 	{
-		std::ifstream stream(filepath);
-
-		enum class ShaderType {
-			NONE = -1, VERTEX = 0, FRAGMENT = 1
-		};
-
-		std::string line;
-		std::stringstream ss[2];
-		ShaderType type = ShaderType::NONE;
-
-		while (getline(stream, line)) {
-			if (line.find("#shader") != std::string::npos) {
-				if (line.find("vertex") != std::string::npos)
-					type = ShaderType::VERTEX;
-				else if (line.find("fragment") != std::string::npos)
-					type = ShaderType::FRAGMENT;
-			}
-			else ss[(int)type] << line << '\n';
-		}
-
-		m_vertexSource = ss[0].str();
-		m_fragmentSource = ss[1].str();
+		auto shader = Shader::create(filepath);
+		add(name, shader);
+		return shader;
 	}
 
-	uint32_t Shader::compileShader(uint32_t typeconst, const std::string& source) {
-		uint32_t id = glCreateShader(typeconst);
-		const char* src = source.c_str();
-		glShaderSource(id, 1, &src, nullptr);
-		glCompileShader(id);
-
-		int result;
-		glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-
-		if (result == GL_FALSE) {
-			int lenght;
-			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &lenght);
-			char* message = (char*)alloca(lenght * sizeof(char));
-			glGetShaderInfoLog(id, lenght, &lenght, message);
-			EL_CORE_ERROR("Failed to compile {0}: {1} {2}", typeconst == GL_VERTEX_SHADER ? "vertex" : "fragment", source, message);
-			glDeleteShader(id);
-			return 0;
-		}
-
-		return id;
-	}
-
-	void Shader::createShader() {
-		m_id = glCreateProgram();
-		uint32_t vs = compileShader(GL_VERTEX_SHADER, m_vertexSource);
-		uint32_t fs = compileShader(GL_FRAGMENT_SHADER, m_fragmentSource);
-
-		glAttachShader(m_id, vs);
-		glAttachShader(m_id, fs);
-		glLinkProgram(m_id);
-		glValidateProgram(m_id);
-
-		glDeleteShader(fs);
-		glDeleteShader(vs);
-	}
-
-	void Shader::bind()
+	Ref<Shader> ShaderLibrary::get(const std::string& name)
 	{
-		glUseProgram(m_id);
+		EL_CORE_ASSERT(exists(name), "Shader not found!");
+		return m_shaders[name];
 	}
 
-	void Shader::unbind()
+	bool ShaderLibrary::exists(const std::string& name) const
 	{
-		glUseProgram(0);
+		return m_shaders.find(name) != m_shaders.end();
 	}
 
-	int Shader::getAttribLocation(const char* name) const
+	ShaderLibrary* ShaderLibrary::getInstance()
 	{
-		return glGetAttribLocation(m_id, name);
-	}
-
-	void Shader::setVec3(const char* name, const Vec3& vector) const
-	{
-		glUniform3f(glGetUniformLocation(m_id, name), vector(0), vector(1), vector(2));
-	}
-
-	void Shader::setVec4(const char* name, const Vec4& vector) const
-	{
-		glUniform4f(glGetUniformLocation(m_id, name), vector(0), vector(1), vector(2), vector(3));
-	}
-
-
-	void Shader::setFloat(const char* name, float f) const
-	{
-		glUniform1f(glGetUniformLocation(m_id, name), f);
-	}
-
-	void Shader::setMat3(const char* name, const Mat3& mat) const
-	{
-		glUniformMatrix3fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, mat.data());
-	}
-
-	void Shader::setMat4(const char* name, const Mat4& mat) const
-	{
-		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, mat.data());
-	}
-
-	void Shader::setInt(const char* name, uint32_t i) const
-	{
-		glUniform1i(glGetUniformLocation(m_id, name), i);
+		if (!s_instance)
+			s_instance = new ShaderLibrary;
+		return s_instance;
 	}
 }

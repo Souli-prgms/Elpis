@@ -11,19 +11,12 @@ namespace Elpis
 	{
 	}
 
-	void Scene::addShader(const Ref<Shader>& shader, const std::string& name)
-	{
-		m_shaders.insert(std::make_pair(name, shader));
-	}
-
 	void Scene::addEntity(const Ref<Mesh>& mesh, const std::string& name, const std::string& shaderName, const std::string& materialName, const const Vec3& pos)
 	{
-		Ref<Entity> entity = createRef<Entity>(mesh, name, pos);
+		Ref<Entity> entity = createRef<Entity>(mesh, name, pos, materialName, shaderName);
 		m_bbox.extend(mesh->boundingBox());
 		updateCameraWithBbox();
 		m_entities.push_back(entity);
-		m_entity2Shader.insert(std::make_pair(name, shaderName));
-		m_entity2Material.insert(std::make_pair(name, materialName));
 	}
 
 	void Scene::addLight(const Ref<Light>& light)
@@ -34,7 +27,7 @@ namespace Elpis
 	void Scene::render()
 	{
 		for (std::vector<Ref<Entity>>::iterator it = m_entities.begin(); it < m_entities.end(); it++)
-			renderEntity((*it), m_shaders[m_entity2Shader[(*it)->getName()]], true);
+			renderEntity((*it), SHADER_LIB->get((*it)->getShader()), true);
 		m_cubemap->render(m_cam);
 	}
 
@@ -170,7 +163,7 @@ namespace Elpis
 		shader->setFloat("lod", m_cubemap->getLod());
 		shader->setInt("max_mip_level", m_cubemap->getMaxMipLevels());
 		passWorldMatrices(shader, entity->getTransformationMatrix());
-		passTextures(shader, MaterialManager::getInstance()->getMaterial(m_entity2Material[entity->getName()]));
+		passTextures(shader, MATERIAL_LIB->getMaterial(entity->getMaterial()));
 		entity->display(shader);
 		shader->unbind();
 	}

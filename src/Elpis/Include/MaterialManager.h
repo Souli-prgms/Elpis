@@ -24,20 +24,22 @@ namespace Elpis
 		float ao = 1.0;
 	};
 
-	class MaterialManager
+	class MaterialLibrary
 	{
 	public:
-		MaterialManager() {}
-		~MaterialManager() {}
+		MaterialLibrary() {}
+		~MaterialLibrary() {}
 
-		static const Ref<MaterialManager>& getInstance();
+		static const Ref<MaterialLibrary>& getInstance();
 
-		void addMaterial(const std::string& materialName);
+		Ref<Material>& addMaterial(const std::string& materialName);
 		const Ref<Material>& getMaterial(const std::string& materialName) { return m_materials[materialName]; }
 
 	private:
 		std::unordered_map<std::string, Ref<Material>> m_materials;
 
-		static Ref<MaterialManager> s_instance;
+		static Ref<MaterialLibrary> s_instance;
 	};
+
+#define MATERIAL_LIB MaterialLibrary::getInstance()
 }

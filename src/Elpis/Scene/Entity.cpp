@@ -2,7 +2,7 @@
 
 namespace Elpis
 {
-	Entity::Entity(const Ref<Mesh>& mesh, const std::string& name, const Vec3& position) : m_mesh(mesh), m_name(name), m_transformation(Mat4::Identity())
+	Entity::Entity(const Ref<Mesh>& mesh, const std::string& name, const Vec3& position, const std::string& material, const std::string shader) : m_mesh(mesh), m_name(name), m_transformation(Mat4::Identity()), m_material(material), m_shader(shader)
 	{
 		translate(position.x(), position.y(), position.z());
 	}
