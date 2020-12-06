@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Platform/OpenGL/OpenGLMesh.h"
 
 namespace Elpis
 {
@@ -17,7 +18,7 @@ namespace Elpis
 		std::vector<uint32_t> indices;
 		Box3 bbox;
 		MeshLoader::loadMesh(filepath, vertices, indices, bbox);
-		return createRef<Mesh>(vertices, indices, bbox);
+		return createRef<OpenGLMesh>(vertices, indices, bbox);
 	}
 
 	Ref<Mesh> Mesh::createSphere(const float radius, const int nU, const int nV)
@@ -55,7 +56,7 @@ namespace Elpis
 				faceIds.push_back(vindex); faceIds.push_back(vindex + 1 + (nU + 1)); faceIds.push_back(vindex + (nU + 1));
 			}
 		}
-		return createRef<Mesh>(vertices, faceIds, bbox);
+		return createRef<OpenGLMesh>(vertices, faceIds, bbox);
 	}
 
 	Ref<Mesh> Mesh::createQuad()
@@ -68,68 +69,6 @@ namespace Elpis
 		Box3 bbox;
 		bbox.extend(Vec3(-1.0f, -1.0f, 0.0f)); bbox.extend(Vec3(1.0f, 1.0f, 0.0f));
 		std::vector<uint32_t> faceIds = { 1, 0, 3, 1, 3, 2 };
-		return createRef<Mesh>(vertices, faceIds, bbox);
-	}
-
-	void Mesh::init() {
-		glGenVertexArrays(1, &m_vao);
-		glGenBuffers(2, m_vbo);
-		glBindVertexArray(m_vao);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo[0]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * m_faceIds.size(), m_faceIds.data(), GL_STATIC_DRAW);
-
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * m_vertices.size(), m_vertices[0].m_position.data(), GL_STATIC_DRAW);
-
-		glBindVertexArray(0);
-		m_ready = true;
-	}
-
-	void Mesh::display(const Ref<Shader>& shader) {
-		if (!m_ready)
-			init();
-
-		glBindVertexArray(m_vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vbo[0]);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vbo[1]);
-
-		std::size_t index = 0;
-
-		// Positions
-		int vertexLoc = shader->getAttribLocation("vtx_position");
-		if (vertexLoc >= 0) {
-			glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)index);
-			glEnableVertexAttribArray(vertexLoc);
-		}
-
-		index += sizeof(Vec3);
-
-		// Normals
-		int normalLoc = shader->getAttribLocation("vtx_normal");
-		if (normalLoc >= 0) {
-			glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)index);
-			glEnableVertexAttribArray(normalLoc);
-		}
-
-		index += sizeof(Vec3);
-
-		// Texture coordinates
-		int texcoordLoc = shader->getAttribLocation("vtx_texcoord");
-		if (texcoordLoc >= 0) {
-			glVertexAttribPointer(texcoordLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)index);
-			glEnableVertexAttribArray(texcoordLoc);
-		}
-
-		glDrawElements(GL_TRIANGLES, m_faceIds.size(), GL_UNSIGNED_INT, 0);
-
-		if (vertexLoc >= 0)
-			glDisableVertexAttribArray(vertexLoc);
-		if (normalLoc >= 0)
-			glDisableVertexAttribArray(normalLoc);
-		if (texcoordLoc >= 0)
-			glDisableVertexAttribArray(texcoordLoc);
-
-		glBindVertexArray(0);
+		return createRef<OpenGLMesh>(vertices, faceIds, bbox);
 	}
 }
