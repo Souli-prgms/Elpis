@@ -1,15 +1,12 @@
 #pragma once
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 #include "Scene.h"
 #include "Window.h"
 #include "Event.h"
 #include "ApplicationEvent.h"
 #include "FileDialog.h"
 #include "Framebuffer.h"
+#include "InterfaceLayer.h"
 
 namespace Elpis 
 {
@@ -22,12 +19,20 @@ namespace Elpis
 		void run();
 		void onEvent(Event& e);
 
+		Scene& getScene() { return *m_scene; }
+		Window& getWindow() { return *m_window; }
+		Framebuffer& getFramebuffer() { return *m_framebuffer; }
+
+		static Renderer* getInstance();
+
 	private:
-		void initInterface(); //TO MOVE
-		void setInterface();
 		Scope<Window> m_window;
 		Ref<Scene> m_scene;
 		Ref<Framebuffer> m_framebuffer;
-		bool m_blockEvents;
+		Ref<InterfaceLayer> m_interface;
+
+		static Renderer* s_instance;
 	};
+
+#define RENDERER Renderer::getInstance()
 }
