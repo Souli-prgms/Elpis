@@ -7,26 +7,25 @@
 
 namespace Elpis
 {
-
 	class Log
 	{
 	public:
-		static void Init();
+		static void init();
 
-		static Ref<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-		static Ref<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+		static Ref<spdlog::logger>& getCoreLogger() { return s_coreLogger; }
+		static Ref<spdlog::logger>& getClientLogger() { return s_clientLogger; }
 	private:
-		static Ref<spdlog::logger> s_CoreLogger;
-		static Ref<spdlog::logger> s_ClientLogger;
+		static Ref<spdlog::logger> s_coreLogger;
+		static Ref<spdlog::logger> s_clientLogger;
 	};
 }
 
 // Core log macros
-#define EL_CORE_TRACE(...)		::Elpis::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define EL_CORE_INFO(...)		::Elpis::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define EL_CORE_WARN(...)		::Elpis::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define EL_CORE_ERROR(...)		::Elpis::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define EL_CORE_CRITICAL(...)	::Elpis::Log::GetCoreLogger()->critical(__VA_ARGS__)
+#define EL_CORE_TRACE(...)		::Elpis::Log::getCoreLogger()->trace(__VA_ARGS__)
+#define EL_CORE_INFO(...)		::Elpis::Log::getCoreLogger()->info(__VA_ARGS__)
+#define EL_CORE_WARN(...)		::Elpis::Log::getCoreLogger()->warn(__VA_ARGS__)
+#define EL_CORE_ERROR(...)		::Elpis::Log::getCoreLogger()->error(__VA_ARGS__)
+#define EL_CORE_CRITICAL(...)	::Elpis::Log::getCoreLogger()->critical(__VA_ARGS__)
 #define EL_CORE_ASSERT(x, msg)	assert(x && msg)
 
 // Client log macros

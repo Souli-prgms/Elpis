@@ -7,7 +7,14 @@ namespace Elpis
 
 	Ref<Shader> Shader::create(const std::string& filepath)
 	{
-		return createRef<OpenGLShader>(filepath);
+		switch (RendererAPI::getAPI())
+		{
+			case RendererAPI::API::None: EL_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return createRef<OpenGLShader>(filepath);
+		}
+
+		EL_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
 	}
 
 	void ShaderLibrary::add(const std::string& name, const Ref<Shader>& shader)

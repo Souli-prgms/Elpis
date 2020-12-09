@@ -35,7 +35,7 @@ namespace Elpis
 
 int main(int argc, char *argv[])
 {
-	Elpis::Log::Init();
+	Elpis::Log::init();
 	Elpis::sampleScene();
 	Elpis::RENDERER->run();
 }

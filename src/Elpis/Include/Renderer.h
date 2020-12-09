@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RendererAPI.h"
 #include "Scene.h"
 #include "Window.h"
 #include "Event.h"
@@ -18,6 +19,7 @@ namespace Elpis
 
 		void run();
 		void onEvent(Event& e);
+		bool onWindowClose(WindowCloseEvent& e);
 
 		Scene& getScene() { return *m_scene; }
 		Window& getWindow() { return *m_window; }
@@ -26,6 +28,7 @@ namespace Elpis
 		static Renderer* getInstance();
 
 	private:
+		bool m_running = true;
 		Scope<Window> m_window;
 		Ref<Scene> m_scene;
 		Ref<Framebuffer> m_framebuffer;

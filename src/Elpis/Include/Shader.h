@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RendererAPI.h"
+
 namespace Elpis
 {
 	class Shader

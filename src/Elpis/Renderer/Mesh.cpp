@@ -12,13 +12,25 @@ namespace Elpis
 
 	}
 
+	Ref<Mesh> Mesh::create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& faceIds, const Box3& bbox)
+	{
+		switch (RendererAPI::getAPI())
+		{
+			case RendererAPI::API::None: EL_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return createRef<OpenGLMesh>(vertices, faceIds, bbox);
+		}
+
+		EL_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
+	}
+
 	Ref<Mesh> Mesh::createMesh(const std::string& filepath)
 	{
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		Box3 bbox;
 		MeshLoader::loadMesh(filepath, vertices, indices, bbox);
-		return createRef<OpenGLMesh>(vertices, indices, bbox);
+		return create(vertices, indices, bbox);
 	}
 
 	Ref<Mesh> Mesh::createSphere(const float radius, const int nU, const int nV)
@@ -56,7 +68,7 @@ namespace Elpis
 				faceIds.push_back(vindex); faceIds.push_back(vindex + 1 + (nU + 1)); faceIds.push_back(vindex + (nU + 1));
 			}
 		}
-		return createRef<OpenGLMesh>(vertices, faceIds, bbox);
+		return create(vertices, faceIds, bbox);
 	}
 
 	Ref<Mesh> Mesh::createQuad()
@@ -69,6 +81,6 @@ namespace Elpis
 		Box3 bbox;
 		bbox.extend(Vec3(-1.0f, -1.0f, 0.0f)); bbox.extend(Vec3(1.0f, 1.0f, 0.0f));
 		std::vector<uint32_t> faceIds = { 1, 0, 3, 1, 3, 2 };
-		return createRef<OpenGLMesh>(vertices, faceIds, bbox);
+		return create(vertices, faceIds, bbox);
 	}
 }

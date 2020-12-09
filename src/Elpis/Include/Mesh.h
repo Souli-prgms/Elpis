@@ -2,6 +2,7 @@
 
 #include "MeshLoader.h"
 #include "Shader.h"
+#include "RendererAPI.h"
 
 namespace Elpis
 {
@@ -27,5 +28,7 @@ namespace Elpis
 
 	private:
 		Box3 m_bbox;
+
+		static Ref<Mesh> create(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& faceIds, const Box3& bbox);
 	};
 }

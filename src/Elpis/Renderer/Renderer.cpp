@@ -14,6 +14,7 @@ namespace Elpis
 	Renderer::Renderer()
 	{
 		m_window = Window::create(WindowProperties("Elpis Engine"));
+		RENDERER_API.init();
 		m_window->setEventCallback(EL_BIND_EVENT_FN(Renderer::onEvent));
 
 		m_scene = createRef<Scene>();
@@ -36,12 +37,13 @@ namespace Elpis
 	void Renderer::run()
 	{
 		m_interface->onAttach();
+		RENDERER_API.setViewport(0, 0, m_window->getWidth(), m_window->getHeight());
 		glViewport(0, 0, m_window->getWidth(), m_window->getHeight());
-		while (!glfwWindowShouldClose((GLFWwindow*)m_window->getNativeWindow()))
+		while (m_running)
 		{
 			m_framebuffer->bind();
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			RENDERER_API.setClearColor(Vec4(0.1f, 0.1f, 0.1f, 0.1f));
+			RENDERER_API.clear();
 
 			m_scene->render();
 			m_framebuffer->unbind();
@@ -50,15 +52,23 @@ namespace Elpis
 			m_interface->set();
 			m_interface->end();
 
-			glfwSwapBuffers((GLFWwindow*)m_window->getNativeWindow());
-			glfwPollEvents();
+			m_window->onUpdate();
 		}
-		glfwMakeContextCurrent((GLFWwindow*)m_window->getNativeWindow());
 	}
 
 	void Renderer::onEvent(Event& e)
 	{
+		EventDispatcher dispatcher(e);
+		dispatcher.dispatch<WindowCloseEvent>(EL_BIND_EVENT_FN(Renderer::onWindowClose));
+
 		m_interface->onEvent(e);
 		m_scene->onEvent(e);
 	}
+
+	bool Renderer::onWindowClose(WindowCloseEvent& e)
+	{
+		m_running = false;
+		return true;
+	}
+
 }
