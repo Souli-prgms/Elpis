@@ -19,7 +19,6 @@ namespace Elpis
 		virtual void onEvent(Event& e) override;
 
 		void begin();
-		void set();
 		void end();
 
 		void blockEvents(bool block) { m_blockEvents = block; }

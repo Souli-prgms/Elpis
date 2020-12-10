@@ -8,8 +8,8 @@ set(TARGET "Elpis")
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
 
-file(GLOB HEADERS "src/*/*/*.h")
-file(GLOB SOURCES "src/*/*/*.cpp")
+file(GLOB HEADERS "src/*/*/*.h" "nut/*.h")
+file(GLOB SOURCES "src/*/*/*.cpp" "nut/*.cpp")
 file(GLOB IMGUI_SOURCES "${IMGUI_DIR}/*.cpp")
 set(STBI_SOURCES thirdparty/stb_image/stb_image.cpp)
 
