@@ -42,8 +42,8 @@ namespace Elpis
 		if (m_blockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			e.handled |= e.IsInCategory(EventCategory::Mouse) & io.WantCaptureMouse;
-			e.handled |= e.IsInCategory(EventCategory::Keyboard) & io.WantCaptureKeyboard;
+			e.handled |= e.isInCategory(EventCategory::Mouse) & io.WantCaptureMouse;
+			e.handled |= e.isInCategory(EventCategory::Keyboard) & io.WantCaptureKeyboard;
 		}
 	}
 

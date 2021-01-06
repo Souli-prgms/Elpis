@@ -39,7 +39,7 @@ namespace Elpis
 		virtual int getCategoryFlags() const = 0;
 		virtual std::string toString() const { return getName(); }
 
-		bool IsInCategory(EventCategory category)
+		bool isInCategory(EventCategory category)
 		{
 			return getCategoryFlags() & category;
 		}

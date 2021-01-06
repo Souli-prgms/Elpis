@@ -43,12 +43,13 @@ namespace Elpis
 		m_backgroundShader->bind();
 		m_backgroundShader->setMat4("view_matrix", cam->computeViewMatrix());
 		m_backgroundShader->setMat4("projection_matrix", cam->computeProjectionMatrix());
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
+		
+		glBindTextureUnit(0, m_envCubemap);
 		m_backgroundShader->setInt("environment_map", 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_preFilterMap);
+		
+		glBindTextureUnit(1, m_preFilterMap);
 		m_backgroundShader->setInt("prefilter_map", 1);
+
 		m_backgroundShader->setFloat("exposure", m_exposure);
 		m_backgroundShader->setFloat("lod", m_lod);
 		m_cube->display(m_backgroundShader);
@@ -83,8 +84,8 @@ namespace Elpis
 		m_cubemapShader->bind();
 		m_cubemapShader->setInt("equirectangular_map", 0);
 		m_cubemapShader->setMat4("projection_matrix", captureProjection);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_texture->getId());
+		
+		glBindTextureUnit(0, m_texture->getId());
 
 		glViewport(0, 0, bufferSize, bufferSize); // don't forget to configure the viewport to the capture dimensions.
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
@@ -123,8 +124,8 @@ namespace Elpis
 		m_irradianceShader->bind();
 		m_irradianceShader->setInt("environment_map", 0);
 		m_irradianceShader->setMat4("projection_matrix", captureProjection);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
+
+		glBindTextureUnit(0, m_envCubemap);
 
 		glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
@@ -161,8 +162,8 @@ namespace Elpis
 		m_preFilterShader->bind();
 		m_preFilterShader->setInt("environment_map", 0);
 		m_preFilterShader->setMat4("projection_matrix", captureProjection);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_envCubemap);
+		
+		glBindTextureUnit(0, m_envCubemap);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);
 

@@ -78,17 +78,14 @@ namespace Elpis
 
 	void Scene::passTextures(const Ref<Shader>& shader, const Ref<Material>& material)
 	{
-		glActiveTexture(GL_TEXTURE0);
+		glBindTextureUnit(0, m_cubemap->getIrradianceMap());
 		shader->setInt("irradiance_map", 0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getIrradianceMap());
 
-		glActiveTexture(GL_TEXTURE1);
+		glBindTextureUnit(1, m_cubemap->getPreFilterMap());
 		shader->setInt("prefilter_map", 1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubemap->getPreFilterMap());
 
-		glActiveTexture(GL_TEXTURE2);
+		glBindTextureUnit(2, m_cubemap->getBRDFTexture());
 		shader->setInt("brdf_map", 2);
-		glBindTexture(GL_TEXTURE_2D, m_cubemap->getBRDFTexture());
 
 		int index = 3;
 		passPBRMaterial(material, shader, index);
@@ -99,9 +96,8 @@ namespace Elpis
 		// ALBEDO
 		if (mat->useBasecolorMap)
 		{
-			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTextureUnit(index, mat->basecolorMap->getId());
 			shader->setInt("albedo_map", index);
-			glBindTexture(GL_TEXTURE_2D, mat->basecolorMap->getId());
 			index++;
 		}
 		else
@@ -111,9 +107,8 @@ namespace Elpis
 		// METALLIC
 		if (mat->useMetallicMap)
 		{
-			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTextureUnit(index, mat->metallicMap->getId());
 			shader->setInt("metallic_map", index);
-			glBindTexture(GL_TEXTURE_2D, mat->metallicMap->getId());
 			index++;
 		}
 		else
@@ -123,9 +118,8 @@ namespace Elpis
 		// ROUGHNESS
 		if (mat->useRoughnessMap)
 		{
-			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTextureUnit(index, mat->roughnessMap->getId());
 			shader->setInt("roughness_map", index);
-			glBindTexture(GL_TEXTURE_2D, mat->roughnessMap->getId());
 			index++;
 		}
 		else
@@ -135,9 +129,8 @@ namespace Elpis
 		// AO
 		if (mat->useAoMap)
 		{
-			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTextureUnit(index, mat->aoMap->getId());
 			shader->setInt("ao_map", index);
-			glBindTexture(GL_TEXTURE_2D, mat->aoMap->getId());
 			index++;
 		}
 		else
@@ -147,9 +140,8 @@ namespace Elpis
 		// NORMALS
 		if (mat->useNormalMap)
 		{
-			glActiveTexture(GL_TEXTURE0 + index);
+			glBindTextureUnit(index, mat->normalMap->getId());
 			shader->setInt("normal_map", index);
-			glBindTexture(GL_TEXTURE_2D, mat->normalMap->getId());
 			index++;
 		}
 		shader->setInt("normal_bool", mat->useNormalMap);
