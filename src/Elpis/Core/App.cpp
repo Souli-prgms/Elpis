@@ -45,6 +45,8 @@ namespace Elpis
 		dispatcher.dispatch<WindowCloseEvent>(EL_BIND_EVENT_FN(App::onWindowClose));
 		dispatcher.dispatch<WindowResizeEvent>(EL_BIND_EVENT_FN(App::onWindowResize));
 
+		m_interfaceLayer->onEvent(e);
+
 		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
 		{
 			if (e.handled)
