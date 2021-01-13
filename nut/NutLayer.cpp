@@ -52,7 +52,10 @@ namespace Elpis
 		m_framebuffer->bind();
 		RENDERER_API.setClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RENDERER_API.clear();
-		m_scene->render();
+
+
+
+		m_scene->onUpdate(ts);
 		m_framebuffer->unbind();
 	}
 

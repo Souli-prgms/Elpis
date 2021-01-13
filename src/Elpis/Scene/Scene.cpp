@@ -24,7 +24,7 @@ namespace Elpis
 		m_lights.push_back(light);
 	}
 
-	void Scene::render()
+	void Scene::onUpdate(Timestep ts)
 	{
 		for (Ref<Entity>& entity : m_entities)
 			renderEntity(entity, SHADER_LIB->get(entity->getShader()), true);

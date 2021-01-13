@@ -5,12 +5,16 @@
 #include "Light.h"
 #include "Entity.h"
 #include "CubeMap.h"
+#include "Timestep.h"
 
 namespace Elpis
 {
 	class Scene
 	{
 	public:
+		using Entities = std::vector<Ref<Entity>>;
+		using Lights = std::vector<Ref<Light>>;
+
 		Scene();
 		~Scene();
 
@@ -18,7 +22,7 @@ namespace Elpis
 		void addLight(const Ref<Light>& light);
 
 		void setCubemap(const std::string& filepath);
-		void render();
+		void onUpdate(Timestep ts);
 
 		Ref<Camera> getCamera() const { return m_cam; }
 		Ref<Entity> getEntity(int index) const { return m_entities[index]; }
@@ -30,8 +34,8 @@ namespace Elpis
 		Ref<CubeMap> m_cubemap;
 		Box3 m_bbox;
 
-		std::vector<Ref<Entity>> m_entities;
-		std::vector<Ref<Light>> m_lights;
+		Entities m_entities;
+		Lights m_lights;
 
 		void initCamera();
 		void passLights(const Ref<Shader>& shader);
