@@ -15,7 +15,7 @@ namespace Elpis
 
 	CubeMap::CubeMap(const std::string& filepath) : m_exposure(1.0), m_lod(0.0), m_maxMipLevel(6)
 	{
-		m_texture = createScope<Texture>(filepath);
+		m_texture = Texture::create(filepath);
 		m_cubemapShader = Shader::create(EL_RESOURCE_PATH("shaders/Cubemap.shader"));
 		m_backgroundShader = Shader::create(EL_RESOURCE_PATH("shaders/Background.shader"));
 		m_irradianceShader = Shader::create(EL_RESOURCE_PATH("shaders/Irradiance.shader"));
@@ -85,7 +85,7 @@ namespace Elpis
 		m_cubemapShader->setInt("equirectangular_map", 0);
 		m_cubemapShader->setMat4("projection_matrix", captureProjection);
 		
-		glBindTextureUnit(0, m_texture->getId());
+		m_texture->bind(0);
 
 		glViewport(0, 0, bufferSize, bufferSize); // don't forget to configure the viewport to the capture dimensions.
 		glBindFramebuffer(GL_FRAMEBUFFER, m_captureFBO);

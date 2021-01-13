@@ -125,10 +125,10 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Albedo"))
 			{
-				uint32_t id = mat->basecolorMap ? mat->basecolorMap->getId() : 0;
+				uint32_t id = mat->basecolorMap ? mat->basecolorMap->getRendererID() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = FileDialog::getFile();
-					mat->basecolorMap = createRef<Texture>(filepath);
+					mat->basecolorMap = Texture::create(filepath);
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use", &(mat->useBasecolorMap));
@@ -136,20 +136,20 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Normals"))
 			{
-				uint32_t id = mat->normalMap ? mat->normalMap->getId() : 0;
+				uint32_t id = mat->normalMap ? mat->normalMap->getRendererID() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = FileDialog::getFile();
-					mat->normalMap = createRef<Texture>(filepath);
+					mat->normalMap = Texture::create(filepath);
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use ", &(mat->useNormalMap));
 			}
 			if (ImGui::CollapsingHeader("Metalness"))
 			{
-				uint32_t id = mat->metallicMap ? mat->metallicMap->getId() : 0;
+				uint32_t id = mat->metallicMap ? mat->metallicMap->getRendererID() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = FileDialog::getFile();
-					mat->metallicMap = createRef<Texture>(filepath);
+					mat->metallicMap = Texture::create(filepath);
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use  ", &(mat->useMetallicMap));
@@ -157,10 +157,10 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Roughness"))
 			{
-				uint32_t id = mat->roughnessMap ? mat->roughnessMap->getId() : 0;
+				uint32_t id = mat->roughnessMap ? mat->roughnessMap->getRendererID() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = FileDialog::getFile();
-					mat->roughnessMap = createRef<Texture>(filepath);
+					mat->roughnessMap = Texture::create(filepath);
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use   ", &(mat->useRoughnessMap));
@@ -168,10 +168,10 @@ namespace Elpis
 			}
 			if (ImGui::CollapsingHeader("Ao"))
 			{
-				uint32_t id = mat->aoMap ? mat->aoMap->getId() : 0;
+				uint32_t id = mat->aoMap ? mat->aoMap->getRendererID() : 0;
 				if (ImGui::ImageButton((void*)id, ImVec2(50, 50))) {
 					std::string filepath = FileDialog::getFile();
-					mat->aoMap = createRef<Texture>(filepath);
+					mat->aoMap = Texture::create(filepath);
 				}
 				ImGui::SameLine();
 				ImGui::Checkbox("Use    ", &(mat->useAoMap));

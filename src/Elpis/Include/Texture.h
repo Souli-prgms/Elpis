@@ -1,22 +1,25 @@
 #pragma once
 
+#include "RendererAPI.h"
+
 namespace Elpis
 {
 	class Texture
 	{
 	public:
-		Texture(const std::string& filename);
-		~Texture();
+		virtual ~Texture() = default;
 
-		uint32_t getId() { return m_id; }
+		virtual uint32_t getWidth() const = 0;
+		virtual uint32_t getHeight() const = 0;
+		virtual uint32_t getRendererID() const = 0;
 
-	private:
-		int m_width, m_height, m_nbChannels;
-		unsigned char* m_data;
-		float* m_floatData;
-		uint32_t m_id;
+		virtual void setData(void* data, uint32_t size) = 0;
 
-		int loadImage(const std::string& filename);
-		int loadHDR(const std::string& filename);
+		virtual void bind(uint32_t slot = 0) const = 0;
+
+		virtual bool operator==(const Texture& other) const = 0;
+
+		static Ref<Texture> create(uint32_t width, uint32_t height);
+		static Ref<Texture> create(const std::string& path);
 	};
 }

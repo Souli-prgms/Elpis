@@ -26,8 +26,9 @@ namespace Elpis
 
 	void Scene::render()
 	{
-		for (std::vector<Ref<Entity>>::iterator it = m_entities.begin(); it < m_entities.end(); it++)
-			renderEntity((*it), SHADER_LIB->get((*it)->getShader()), true);
+		for (Ref<Entity>& entity : m_entities)
+			renderEntity(entity, SHADER_LIB->get(entity->getShader()), true);
+
 		m_cubemap->render(m_cam);
 	}
 
@@ -47,6 +48,8 @@ namespace Elpis
 		m_cam->setNearFarOffsets(-m_cam->sceneRadius() * 100.f, m_cam->sceneRadius() * 100.f);
 	}
 
+#define PT_LIGHTS "point_lights["
+
 	void Scene::passLights(const Ref<Shader>& shader)
 	{
 		shader->setInt("nb_lights", m_lights.size());
@@ -56,14 +59,14 @@ namespace Elpis
 
 			if (light->getType() == LightType::Point)
 			{
-				Vec3 pos = light->getPosition();
-				shader->setVec4(("point_lights[" + std::to_string(i) + "].position").c_str(), m_cam->computeViewMatrix() * Vec4(pos.x(), pos.y(), pos.z(), 1.0f));
-				shader->setVec3(("point_lights[" + std::to_string(i) + "].ambient").c_str(), light->getAmbient());
-				shader->setVec3(("point_lights[" + std::to_string(i) + "].diffuse").c_str(), light->getDiffuse());
-				shader->setVec3(("point_lights[" + std::to_string(i) + "].specular").c_str(), light->getSpecular());
-				shader->setFloat(("point_lights[" + std::to_string(i) + "].constant").c_str(), light->getConstant());
-				shader->setFloat(("point_lights[" + std::to_string(i) + "].linear").c_str(), light->getLinear());
-				shader->setFloat(("point_lights[" + std::to_string(i) + "].quadratic").c_str(), light->getQuadratic());
+				Vec3& pos = light->getPosition();
+				shader->setVec4((PT_LIGHTS + std::to_string(i) + "].position").c_str(), m_cam->computeViewMatrix() * Vec4(pos.x(), pos.y(), pos.z(), 1.0f));
+				shader->setVec3((PT_LIGHTS + std::to_string(i) + "].ambient").c_str(), light->getAmbient());
+				shader->setVec3((PT_LIGHTS + std::to_string(i) + "].diffuse").c_str(), light->getDiffuse());
+				shader->setVec3((PT_LIGHTS + std::to_string(i) + "].specular").c_str(), light->getSpecular());
+				shader->setFloat((PT_LIGHTS + std::to_string(i) + "].constant").c_str(), light->getConstant());
+				shader->setFloat((PT_LIGHTS + std::to_string(i) + "].linear").c_str(), light->getLinear());
+				shader->setFloat((PT_LIGHTS + std::to_string(i) + "].quadratic").c_str(), light->getQuadratic());
 			}
 		}
 	}
@@ -96,7 +99,7 @@ namespace Elpis
 		// ALBEDO
 		if (mat->useBasecolorMap)
 		{
-			glBindTextureUnit(index, mat->basecolorMap->getId());
+			mat->basecolorMap->bind(index);
 			shader->setInt("albedo_map", index);
 			index++;
 		}
@@ -107,7 +110,7 @@ namespace Elpis
 		// METALLIC
 		if (mat->useMetallicMap)
 		{
-			glBindTextureUnit(index, mat->metallicMap->getId());
+			mat->metallicMap->bind(index);
 			shader->setInt("metallic_map", index);
 			index++;
 		}
@@ -118,7 +121,7 @@ namespace Elpis
 		// ROUGHNESS
 		if (mat->useRoughnessMap)
 		{
-			glBindTextureUnit(index, mat->roughnessMap->getId());
+			mat->roughnessMap->bind(index);
 			shader->setInt("roughness_map", index);
 			index++;
 		}
@@ -129,7 +132,7 @@ namespace Elpis
 		// AO
 		if (mat->useAoMap)
 		{
-			glBindTextureUnit(index, mat->aoMap->getId());
+			mat->aoMap->bind(index);
 			shader->setInt("ao_map", index);
 			index++;
 		}
@@ -140,7 +143,7 @@ namespace Elpis
 		// NORMALS
 		if (mat->useNormalMap)
 		{
-			glBindTextureUnit(index, mat->normalMap->getId());
+			mat->normalMap->bind(index);
 			shader->setInt("normal_map", index);
 			index++;
 		}

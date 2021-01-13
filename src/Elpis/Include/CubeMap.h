@@ -28,7 +28,7 @@ namespace Elpis
 	private:
 		Ref<Mesh> m_cube;
 		Ref<Mesh> m_quad;
-		Scope<Texture> m_texture;
+		Ref<Texture> m_texture;
 
 		Ref<Shader> m_cubemapShader;
 		Ref<Shader> m_backgroundShader;
