@@ -8,36 +8,29 @@ set(TARGET "Elpis")
 set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui)
 
+# Using the "cmake_find_package" generator
+set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR} ${CMAKE_MODULE_PATH})
+set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR} ${CMAKE_PREFIX_PATH})
+
+find_package(GLEW REQUIRED)
+find_package(assimp REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(spdlog REQUIRED)
+
 file(GLOB HEADERS "src/*/*/*.h" "nut/*.h")
 file(GLOB SOURCES "src/*/*/*.cpp" "nut/*.cpp")
 file(GLOB IMGUI_SOURCES "${IMGUI_DIR}/*.cpp")
-set(STBI_SOURCES thirdparty/stb_image/stb_image.cpp)
+set(STB_SOURCES thirdparty/stb/stb_image.cpp)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src
-					${CMAKE_CURRENT_SOURCE_DIR}/src/Elpis/Include
-					
-                    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty
-					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/include
-					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/include
-					${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/include
-					${IMGUI_DIR}
-)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/src/Elpis/Include ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/lib/Release/x64
-				 ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/GLFW/lib-vc2017
-				 ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/lib
-)
-
-add_definitions(-DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/res")
-
-add_executable(${TARGET} ${SOURCES} ${HEADERS} ${IMGUI_SOURCES} ${STBI_SOURCES})
+add_executable(${TARGET} ${SOURCES} ${HEADERS} ${IMGUI_SOURCES} ${STB_SOURCES})
 target_precompile_headers(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/elpch.h)
 
-target_link_libraries(${TARGET} glew32 glfw3 opengl32 assimp-vc141-mtd)
+target_link_libraries(${TARGET} GLEW::GLEW assimp::assimp Eigen3::Eigen3 glfw::glfw spdlog::spdlog)
 
 set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY $(OutDir))
 
 add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
-
-add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/glew/bin/Release/x64/glew32.dll $(OutDir))
-add_custom_command(TARGET ${TARGET} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/assimp/bin/assimp-vc141-mtd.dll $(OutDir))
+add_definitions(-DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/res")
